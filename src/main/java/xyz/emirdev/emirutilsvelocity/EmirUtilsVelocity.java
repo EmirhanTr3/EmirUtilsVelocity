@@ -10,17 +10,25 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import org.slf4j.Logger;
 import xyz.emirdev.emirutilsvelocity.commands.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @Plugin(
         id = "emirutilsvelocity",
         name = "EmirUtilsVelocity",
         version = "1.0-SNAPSHOT",
         authors = "EmirhanTr3",
         dependencies = {
-                @Dependency(id = "redisbungee")
+                @Dependency(id = "redisbungee"),
+                @Dependency(id = "luckperms")
         }
 )
 public class EmirUtilsVelocity {
     public static ProxyServer proxy;
+
+    public static List<UUID> staffChatToggledPlayers = new ArrayList<>();
+    public static List<UUID> ownerChatToggledPlayers = new ArrayList<>();
 
     @Inject
     private Logger logger;
@@ -32,10 +40,12 @@ public class EmirUtilsVelocity {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        logger.info("EmirUtils loaded wow");
+        logger.info("Loading events...");
 
         proxy.getEventManager().register(this, new StaffChatCommand());
         proxy.getEventManager().register(this, new OwnerChatCommand());
+
+        logger.info("Loading commands...");
 
         CommandManager commandManager = proxy.getCommandManager();
 
@@ -55,5 +65,14 @@ public class EmirUtilsVelocity {
             OwnerChatCommand.createBrigadierCommand(proxy)
         );
 
+        commandManager.register(
+            commandManager.metaBuilder("find")
+                .aliases("sfind")
+                .plugin(this)
+                .build(),
+            FindCommand.createBrigadierCommand(proxy)
+        );
+
+        logger.info("Loaded successfully");
     }
 }

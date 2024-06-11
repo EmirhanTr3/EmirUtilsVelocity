@@ -1,5 +1,6 @@
 xyz\emirdev\emirutilsvelocity\commands\OwnerChatCommand.class
 xyz\emirdev\emirutilsvelocity\commands\StaffChatCommand$1.class
+xyz\emirdev\emirutilsvelocity\commands\FindCommand.class
 velocity-plugin.json
 xyz\emirdev\emirutilsvelocity\commands\StaffChatCommand.class
 xyz\emirdev\emirutilsvelocity\Utils.class

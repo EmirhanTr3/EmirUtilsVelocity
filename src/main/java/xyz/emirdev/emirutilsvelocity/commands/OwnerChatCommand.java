@@ -10,49 +10,84 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.PlayerChatEvent;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public final class OwnerChatCommand {
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("ownerchat")
-                .requires(source -> source.hasPermission("emirutilsvelocity.ownerchat"))
+            .requires(source -> source.hasPermission("emirutilsvelocity.ownerchat"))
                 .executes(context -> {
-                    context.getSource().sendMessage(Utils.deserialize("<red>You need to specify a message."));
+                    if (context.getSource() instanceof Player player) {
+                        if (EmirUtilsVelocity.ownerChatToggledPlayers.contains(player.getUniqueId())) {
+                            EmirUtilsVelocity.ownerChatToggledPlayers.remove(player.getUniqueId());
+                            player.sendMessage(Utils.deserialize("<green>You are <bold>no longer</bold> chatting in owner chat.</green>"));
+                        } else {
+                            EmirUtilsVelocity.ownerChatToggledPlayers.add(player.getUniqueId());
+                            player.sendMessage(Utils.deserialize("<green>You are <bold>now</bold> chatting in owner chat.</green>"));
+                        }
+                    } else {
+                        context.getSource().sendMessage(Utils.deserialize("<red>You cannot toggle owner chat as console."));
+                    }
                     return Command.SINGLE_SUCCESS;
                 })
-                .then(BrigadierCommand.requiredArgumentBuilder("message", StringArgumentType.greedyString())
-                    .executes(context -> {
-                        CommandSource source = context.getSource();
-                        String message = context.getArgument("message", String.class);
+            .then(BrigadierCommand.requiredArgumentBuilder("message", StringArgumentType.greedyString())
+                .executes(context -> {
+                    CommandSource source = context.getSource();
+                    String message = context.getArgument("message", String.class);
 
-                        RedisBungeeAPI redisbungee = RedisBungeeAPI.getRedisBungeeApi();
+                    sendMessage(source, message);
 
-                        Gson gson = new Gson();
-                        Map<String, Object> map = new LinkedHashMap<>();
-                        map.put("proxyId", redisbungee.getProxyId());
-                        map.put("isPlayer", (source instanceof Player));
-                        map.put("name", ((source instanceof Player player) ? player.getUsername() : "Console"));
-                        map.put("server", ((source instanceof Player player) ? player.getCurrentServer().get().getServerInfo().getName() : null));
-                        map.put("message", message);
-
-                        String json = gson.toJson(map);
-
-                        redisbungee.sendChannelMessage("emirutilsvelocity:ownerchat", json);
-
-                        return Command.SINGLE_SUCCESS;
-                    })
-                )
-                .build();
+                    return Command.SINGLE_SUCCESS;
+                })
+            )
+            .build();
 
         return new BrigadierCommand(node);
+    }
+
+    private static void sendMessage(CommandSource source, String message) {
+        RedisBungeeAPI redisbungee = RedisBungeeAPI.getRedisBungeeApi();
+
+        Gson gson = new Gson();
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("proxyId", redisbungee.getProxyId());
+        map.put("isPlayer", (source instanceof Player));
+        map.put("name", ((source instanceof Player player) ? player.getUsername() : "Console"));
+        map.put("uuid", ((source instanceof Player player) ? player.getUniqueId() : null));
+        map.put("server", ((source instanceof Player player) ? player.getCurrentServer().get().getServerInfo().getName() : null));
+        map.put("message", message);
+
+        String json = gson.toJson(map);
+
+        redisbungee.sendChannelMessage("emirutilsvelocity:ownerchat", json);
+    }
+
+    @Subscribe
+    public void onChatMessage(PlayerChatEvent event) {
+        if (EmirUtilsVelocity.ownerChatToggledPlayers.contains(event.getPlayer().getUniqueId())) {
+            if (event.getPlayer().hasPermission("emirutilsvelocity.ownerchat")) {
+                event.setResult(PlayerChatEvent.ChatResult.denied());
+                sendMessage(event.getPlayer(), event.getMessage());
+            } else {
+                EmirUtilsVelocity.ownerChatToggledPlayers.remove(event.getPlayer().getUniqueId());
+            }
+        }
     }
 
     @Subscribe
@@ -63,7 +98,12 @@ public final class OwnerChatCommand {
 
             Component comp;
             if ((Boolean) map.get("isPlayer")) {
-                comp = Utils.deserialize("<dark_red>[<red>OC<dark_red>] <dark_red>[<red>"+ map.get("proxyId") +"<dark_red>] <dark_red>[<red>"+ map.get("server") +"<dark_red>] <red>"+ map.get("name") +"<red>: " + map.get("message"));
+                LuckPerms luckperms = LuckPermsProvider.get();
+                User user = luckperms.getUserManager().getUser(UUID.fromString((String) map.get("uuid")));
+                String prefix = user.getCachedData().getMetaData().getPrefix();
+                String suffix = user.getCachedData().getMetaData().getSuffix();
+                String displayname = MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(Objects.requireNonNullElse(prefix, "") + map.get("name") + Objects.requireNonNullElse(suffix, "")));
+                comp = Utils.deserialize("<dark_red>[<red>OC<dark_red>] <dark_red>[<red>"+ map.get("proxyId") +"<dark_red>] <dark_red>[<red>"+ map.get("server") +"<dark_red>] <red>"+ displayname +"<red>: " + map.get("message"));
             } else {
                 comp = Utils.deserialize("<dark_red>[<red>OC<dark_red>] <dark_red>[<red>" + map.get("proxyId") + "<dark_red>] <red>Console<red>: " + map.get("message"));
             }
