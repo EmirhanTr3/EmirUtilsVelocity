@@ -20,6 +20,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
+import net.luckperms.api.model.user.UserManager;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public final class StaffChatCommand {
 
@@ -97,23 +99,23 @@ public final class StaffChatCommand {
             Gson gson = new Gson();
             Map<String, Object> map = gson.fromJson(event.getMessage(), new TypeToken<Map<String, Object>>(){});
 
-            Component comp;
             if ((Boolean) map.get("isPlayer")) {
                 LuckPerms luckperms = LuckPermsProvider.get();
-                User user = luckperms.getUserManager().getUser(UUID.fromString((String) map.get("uuid")));
-                String prefix = user.getCachedData().getMetaData().getPrefix();
-                String suffix = user.getCachedData().getMetaData().getSuffix();
-                String displayname = MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(Objects.requireNonNullElse(prefix, "") + map.get("name") + Objects.requireNonNullElse(suffix, "")));
-                comp = Utils.deserialize("<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>"+ map.get("proxyId") +"<dark_aqua>] <dark_aqua>[<aqua>"+ map.get("server") +"<dark_aqua>] <aqua>"+ displayname +"<aqua>: " + map.get("message"));
-            } else {
-                comp = Utils.deserialize("<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>" + map.get("proxyId") + "<dark_aqua>] <aqua>Console<aqua>: " + map.get("message"));
-            }
+                UserManager userManager = luckperms.getUserManager();
+                UUID uuid = UUID.fromString((String) map.get("uuid"));
+                CompletableFuture<User> userFuture = userManager.loadUser(uuid);
 
-            EmirUtilsVelocity.proxy.getConsoleCommandSource().sendMessage(comp);
-            for (Player p : EmirUtilsVelocity.proxy.getAllPlayers()) {
-                if (p.hasPermission("emirutilsvelocity.staffchat")) {
-                    p.sendMessage(comp);
-                }
+                userFuture.thenAcceptAsync(user -> {
+                    String prefix = user.getCachedData().getMetaData().getPrefix();
+                    String suffix = user.getCachedData().getMetaData().getSuffix();
+                    String displayname = MiniMessage.miniMessage().serialize(LegacyComponentSerializer.legacyAmpersand().deserialize(Objects.requireNonNullElse(prefix, "") + map.get("name") + Objects.requireNonNullElse(suffix, "")));
+                    Component comp = Utils.deserialize("<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>" + map.get("proxyId") + "<dark_aqua>] <dark_aqua>[<aqua>" + map.get("server") + "<dark_aqua>] <aqua>" + displayname + "<aqua>: " + map.get("message"));
+
+                    Utils.sendToAllWithPermissions("emirutilsvelocity.staffchat", comp);
+                });
+            } else {
+                Component comp = Utils.deserialize("<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>" + map.get("proxyId") + "<dark_aqua>] <aqua>Console<aqua>: " + map.get("message"));
+                Utils.sendToAllWithPermissions("emirutilsvelocity.staffchat", comp);
             }
         }
     }

@@ -16,10 +16,10 @@ public final class FindCommand {
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("find")
             .requires(source -> source.hasPermission("emirutilsvelocity.find"))
-                .executes(context -> {
-                    context.getSource().sendMessage(Utils.deserialize("<red>You need to specify a player."));
-                    return Command.SINGLE_SUCCESS;
-                })
+            .executes(context -> {
+                context.getSource().sendMessage(Utils.deserialize("<red>You need to specify a player."));
+                return Command.SINGLE_SUCCESS;
+            })
             .then(BrigadierCommand.requiredArgumentBuilder("player", StringArgumentType.greedyString())
                 .suggests((ctx, builder) -> {
                     RedisBungeeAPI redisbungee = RedisBungeeAPI.getRedisBungeeApi();
@@ -33,16 +33,16 @@ public final class FindCommand {
                     return builder.buildFuture();
                 })
                 .executes(context -> {
-                    CommandSource source = context.getSource();
                     RedisBungeeAPI redisbungee = RedisBungeeAPI.getRedisBungeeApi();
                     String name = context.getArgument("player", String.class);
 
                     UUID uuid = redisbungee.getUuidFromName(name);
 
                     if (redisbungee.isPlayerOnline(uuid)) {
-                        String server = redisbungee.getServerFor(redisbungee.getUuidFromName(name)).getName();
+                        String server = redisbungee.getServerFor(uuid).getName();
+                        String rproxy = redisbungee.getProxy(uuid);
 
-                        context.getSource().sendMessage(Utils.deserialize("<aqua>"+ name +" is found in "+ server));
+                        context.getSource().sendMessage(Utils.deserialize("<aqua>"+ name +" is found in "+ server +" from proxy "+ rproxy));
                     } else {
                         context.getSource().sendMessage(Utils.deserialize("<red>"+ name +" is currently offline."));
                     }
