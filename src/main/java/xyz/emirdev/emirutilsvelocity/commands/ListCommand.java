@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public final class ListCommand {
+    public static String name = "list";
+    public static List<String> aliases = List.of("slist");
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("list")

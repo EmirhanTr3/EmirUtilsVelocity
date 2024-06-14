@@ -1,1 +1,0 @@
-{"id":"emirutilsvelocity","name":"EmirUtilsVelocity","version":"1.0-SNAPSHOT","authors":["EmirhanTr3"],"dependencies":[{"id":"redisbungee","optional":false},{"id":"luckperms","optional":false}],"main":"xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity"}

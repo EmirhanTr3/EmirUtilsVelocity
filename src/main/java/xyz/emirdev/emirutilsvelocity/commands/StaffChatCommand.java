@@ -15,7 +15,6 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -24,13 +23,12 @@ import net.luckperms.api.model.user.UserManager;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class StaffChatCommand {
+    public static String name = "staffchat";
+    public static List<String> aliases = List.of("sc");
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("staffchat")

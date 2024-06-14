@@ -1,26 +1,32 @@
 package xyz.emirdev.emirutilsvelocity;
 
 import com.google.inject.Inject;
+import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandManager;
+import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import de.exlll.configlib.YamlConfigurations;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
-import org.slf4j.event.Level;
 import xyz.emirdev.emirutilsvelocity.commands.*;
 import xyz.emirdev.emirutilsvelocity.events.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Plugin(
         id = "emirutilsvelocity",
         name = "EmirUtilsVelocity",
         version = "1.0-SNAPSHOT",
-        authors = "EmirhanTr3",
+        authors = {"EmirhanTr3", "oCerial"},
         dependencies = {
                 @Dependency(id = "redisbungee"),
                 @Dependency(id = "luckperms")
@@ -29,6 +35,7 @@ import java.util.*;
 public class EmirUtilsVelocity {
     public static ProxyServer proxy;
     public static PluginData data;
+    public static EmirUtilsVelocity instance;
 
     public static List<UUID> staffChatToggledPlayers = new ArrayList<>();
     public static List<UUID> ownerChatToggledPlayers = new ArrayList<>();
@@ -42,19 +49,18 @@ public class EmirUtilsVelocity {
         EmirUtilsVelocity.proxy = proxy;
     }
 
+    @SuppressWarnings("deprecation")
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        instance = this;
         logger.info("Initializing configuration...");
 
-        File configPath = new File("plugins/emirutilsvelocity/data.yml");
-        if (!configPath.exists() && !configPath.mkdirs()) logger.warn("Couldn't make the path.");
+        Path configPath = Paths.get("plugins/emirutilsvelocity/data.yml");
+        PluginData pd = new PluginData();
+        if (!configPath.toFile().exists())
+            YamlConfigurations.save(configPath, PluginData.class, pd);
 
-        try {
-            if (!configPath.exists() && !configPath.createNewFile()) logger.warn("Couldn't make the file.");
-        } catch (IOException e) {
-            logger.warn("Couldn't make the file:", e);
-        }
-
+        data = YamlConfigurations.load(configPath, PluginData.class);
 
         logger.info("Loading events...");
 
@@ -66,57 +72,63 @@ public class EmirUtilsVelocity {
         proxy.getEventManager().register(this, new NetworkLeaveEvent());
         proxy.getEventManager().register(this, new ChangeServerEvent());
 
+        proxy.getEventManager().register(this, pd);
+
         logger.info("Loading commands...");
 
         CommandManager commandManager = proxy.getCommandManager();
 
-        commandManager.register(
-            commandManager.metaBuilder("staffchat")
-                .aliases("sc")
-                .plugin(this)
-                .build(),
-            StaffChatCommand.createBrigadierCommand(proxy)
-        );
+        // Automatic command registration
+        for (Class<?> clazz: new Reflections("xyz.emirdev.emirutilsvelocity.commands", new SubTypesScanner(false))
+            .getSubTypesOf(Object.class)) {
+            // get brigadier command shit
+            Method brigadierMethod;
+            try {
+                brigadierMethod = clazz.getDeclaredMethod("createBrigadierCommand", ProxyServer.class);
+            } catch (NoSuchMethodException e) {
+                logger.error("Couldn't find the create command method in "+clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "")+": ", e);
+                continue;
+            }
 
-        commandManager.register(
-            commandManager.metaBuilder("ownerchat")
-                .aliases("oc")
-                .plugin(this)
-                .build(),
-            OwnerChatCommand.createBrigadierCommand(proxy)
-        );
+            // get command name
+            String name;
+            try {
+                name = (String) clazz.getDeclaredField("name").get(null);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                logger.error("Couldn't find the command name in "+clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "")+": ", e);
+                continue;
+            }
 
-        commandManager.register(
-            commandManager.metaBuilder("find")
-                .aliases("sfind")
-                .plugin(this)
-                .build(),
-            FindCommand.createBrigadierCommand(proxy)
-        );
+            // get command aliases
+            List<String> aliases = null;
+            try {
+                aliases = (List<String>) clazz.getDeclaredField("aliases").get(null);
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {}
 
-        commandManager.register(
-            commandManager.metaBuilder("list")
-                .aliases("slist")
-                .plugin(this)
-                .build(),
-            ListCommand.createBrigadierCommand(proxy)
-        );
 
-        commandManager.register(
-            commandManager.metaBuilder("message")
-                .aliases("msg", "tell", "whisper", "m", "t", "w", "emsg")
-                .plugin(this)
-                .build(),
-            MessageCommand.createBrigadierCommand(proxy)
-        );
+            // get value of command shit
+            BrigadierCommand command;
+            try {
+                command = (BrigadierCommand) brigadierMethod.invoke(null, proxy);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                logger.error("Couldn't find the brigadier data in "+clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "")+": ", e);
+                continue;
+            }
 
-        commandManager.register(
-            commandManager.metaBuilder("reply")
-                .aliases("r", "er")
-                .plugin(this)
-                .build(),
-            ReplyCommand.createBrigadierCommand(proxy)
-        );
+
+            // run registration magic
+            CommandMeta.Builder metaBuilder = commandManager.metaBuilder(name);
+            if (aliases != null) metaBuilder.aliases(aliases.toArray(new String[0]));
+
+            commandManager.register(
+                metaBuilder
+                    .plugin(this)
+                    .build(),
+                command
+            );
+
+            logger.info("Registered command in class "+clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "")+" named "+name+((aliases != null) ? " with aliases "+String.join(", ", aliases) : ""));
+        }
 
         logger.info("Loaded successfully");
     }

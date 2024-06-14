@@ -11,12 +11,16 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
+import java.util.List;
 import java.util.UUID;
 
 public final class ReplyCommand {
+    public static String name = "reply";
+    public static List<String> aliases = List.of("r", "ereply", "er", "sreply", "sr");
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("reply")
+            .requires(source -> source.hasPermission("emirutilsvelocity.message"))
             .executes(context -> {
                 context.getSource().sendMessage(Utils.deserialize("<red>You need to specify a message."));
 

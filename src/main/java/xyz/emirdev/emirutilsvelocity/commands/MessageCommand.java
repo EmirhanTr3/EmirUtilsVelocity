@@ -6,7 +6,6 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
@@ -17,15 +16,15 @@ import net.kyori.adventure.text.Component;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public final class MessageCommand {
+    public static String name = "message";
+    public static List<String> aliases = List.of("msg", "tell", "whisper", "m", "t", "w", "emsg", "smsg");
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("message")
+            .requires(source -> source.hasPermission("emirutilsvelocity.message"))
             .executes(context -> {
                 context.getSource().sendMessage(Utils.deserialize("<red>You need to specify a player to message."));
 
@@ -69,17 +68,23 @@ public final class MessageCommand {
 
     public static void sendProxyMessage(CommandSource source, String target, String message) {
         RedisBungeeAPI redisbungee = RedisBungeeAPI.getRedisBungeeApi();
+        UUID targetUUID = redisbungee.getUuidFromName(target);
 
-        UUID uuid = redisbungee.getUuidFromName(target);
+        if ((source instanceof Player player)) {
+            if (EmirUtilsVelocity.data.getIgnoredPlayers(targetUUID).contains(player.getUniqueId())) {
+                player.sendMessage(Utils.deserialize("<red>You cannot send a message to " + target + "."));
+                return;
+            }
+        }
 
-        if (redisbungee.isPlayerOnline(uuid)) {
+        if (redisbungee.isPlayerOnline(targetUUID)) {
             Gson gson = new Gson();
             Map<String, Object> map = new LinkedHashMap<>();
             map.put("proxyId", redisbungee.getProxyId());
             map.put("isPlayer", (source instanceof Player));
             map.put("name", ((source instanceof Player player) ? player.getUsername() : "Console"));
             map.put("uuid", ((source instanceof Player player) ? player.getUniqueId() : null));
-            map.put("targetuuid", uuid);
+            map.put("targetuuid", targetUUID);
             map.put("message", message);
 
             String json = gson.toJson(map);

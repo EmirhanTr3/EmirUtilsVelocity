@@ -9,9 +9,12 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
+import java.util.List;
 import java.util.UUID;
 
 public final class FindCommand {
+    public static String name = "find";
+    public static List<String> aliases = List.of("sfind");
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("find")

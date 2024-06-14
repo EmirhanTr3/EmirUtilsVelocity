@@ -23,31 +23,30 @@ import net.luckperms.api.model.user.UserManager;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class OwnerChatCommand {
+    public static String name = "ownerchat";
+    public static List<String> aliases = List.of("oc");
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
         LiteralCommandNode<CommandSource> node = BrigadierCommand.literalArgumentBuilder("ownerchat")
             .requires(source -> source.hasPermission("emirutilsvelocity.ownerchat"))
-                .executes(context -> {
-                    if (context.getSource() instanceof Player player) {
-                        if (EmirUtilsVelocity.ownerChatToggledPlayers.contains(player.getUniqueId())) {
-                            EmirUtilsVelocity.ownerChatToggledPlayers.remove(player.getUniqueId());
-                            player.sendMessage(Utils.deserialize("<green>You are <bold>no longer</bold> chatting in owner chat.</green>"));
-                        } else {
-                            EmirUtilsVelocity.ownerChatToggledPlayers.add(player.getUniqueId());
-                            player.sendMessage(Utils.deserialize("<green>You are <bold>now</bold> chatting in owner chat.</green>"));
-                        }
+            .executes(context -> {
+                if (context.getSource() instanceof Player player) {
+                    if (EmirUtilsVelocity.ownerChatToggledPlayers.contains(player.getUniqueId())) {
+                        EmirUtilsVelocity.ownerChatToggledPlayers.remove(player.getUniqueId());
+                        player.sendMessage(Utils.deserialize("<green>You are <bold>no longer</bold> chatting in owner chat.</green>"));
                     } else {
-                        context.getSource().sendMessage(Utils.deserialize("<red>You cannot toggle owner chat as console."));
+                        EmirUtilsVelocity.ownerChatToggledPlayers.add(player.getUniqueId());
+                        player.sendMessage(Utils.deserialize("<green>You are <bold>now</bold> chatting in owner chat.</green>"));
                     }
-                    return Command.SINGLE_SUCCESS;
-                })
+                } else {
+                    context.getSource().sendMessage(Utils.deserialize("<red>You cannot toggle owner chat as console."));
+                }
+                return Command.SINGLE_SUCCESS;
+            })
             .then(BrigadierCommand.requiredArgumentBuilder("message", StringArgumentType.greedyString())
                 .executes(context -> {
                     CommandSource source = context.getSource();
