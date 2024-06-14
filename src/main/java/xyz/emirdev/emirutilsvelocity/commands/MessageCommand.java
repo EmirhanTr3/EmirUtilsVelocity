@@ -75,6 +75,8 @@ public final class MessageCommand {
                 player.sendMessage(Utils.deserialize("<red>You cannot send a message to " + target + "."));
                 return;
             }
+
+            SocialSpyCommand.sendProxyMessage(source, target, message);
         }
 
         if (redisbungee.isPlayerOnline(targetUUID)) {

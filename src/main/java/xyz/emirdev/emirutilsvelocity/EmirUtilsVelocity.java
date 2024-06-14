@@ -67,6 +67,7 @@ public class EmirUtilsVelocity {
         proxy.getEventManager().register(this, new StaffChatCommand());
         proxy.getEventManager().register(this, new OwnerChatCommand());
         proxy.getEventManager().register(this, new MessageCommand());
+        proxy.getEventManager().register(this, new SocialSpyCommand());
 
         proxy.getEventManager().register(this, new NetworkJoinEvent());
         proxy.getEventManager().register(this, new NetworkLeaveEvent());

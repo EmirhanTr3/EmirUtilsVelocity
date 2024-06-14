@@ -15,6 +15,7 @@ import java.util.*;
 @Configuration
 public class PluginData {
     private Map<UUID, List<UUID>> ignoredPlayers = new HashMap<>();
+    private Map<UUID, Boolean> socialSpyEnabled = new HashMap<>();
 
     public void save() {
         Path dataPath = Paths.get("plugins/emirutilsvelocity/data.yml");
@@ -26,6 +27,7 @@ public class PluginData {
 
         EmirUtilsVelocity.data = YamlConfigurations.load(dataPath, PluginData.class);
     }
+
 
     public Map<UUID, List<UUID>> getIgnoredPlayers() {
         return this.ignoredPlayers;
@@ -66,6 +68,38 @@ public class PluginData {
         redisbungee.sendChannelMessage("emirutilsvelocity:removeignored", json);
     }
 
+    public boolean getSocialSpyEnabled(UUID uuid) {
+        boolean enabled = false;
+        try {
+            enabled = this.socialSpyEnabled.get(uuid);
+        } catch (NullPointerException ignored) {}
+        return enabled;
+    }
+
+    public void enableSocialSpy(UUID uuid) {
+        RedisBungeeAPI redisbungee = RedisBungeeAPI.getRedisBungeeApi();
+
+        Gson gson = new Gson();
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("uuid", uuid);
+
+        String json = gson.toJson(map);
+
+        redisbungee.sendChannelMessage("emirutilsvelocity:enablesocialspy", json);
+    }
+
+    public void disableSocialSpy(UUID uuid) {
+        RedisBungeeAPI redisbungee = RedisBungeeAPI.getRedisBungeeApi();
+
+        Gson gson = new Gson();
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("uuid", uuid);
+
+        String json = gson.toJson(map);
+
+        redisbungee.sendChannelMessage("emirutilsvelocity:disablesocialspy", json);
+    }
+
     @Subscribe
     public void onPubSubMessageEvent(PubSubMessageEvent event) {
         if (
@@ -86,6 +120,22 @@ public class PluginData {
                 list.remove(targetUUID);
             }
             this.ignoredPlayers.put(playerUUID, list);
+            this.save();
+
+        } else if (
+            event.getChannel().equals("emirutilsvelocity:enablesocialspy") ||
+            event.getChannel().equals("emirutilsvelocity:disablesocialspy")
+        ) {
+            Gson gson = new Gson();
+            Map<String, Object> map = gson.fromJson(event.getMessage(), new TypeToken<Map<String, Object>>(){});
+
+            UUID uuid = UUID.fromString((String) map.get("uuid"));
+
+            if (event.getChannel().equals("emirutilsvelocity:enablesocialspy")) {
+                this.socialSpyEnabled.put(uuid, true);
+            } else if (event.getChannel().equals("emirutilsvelocity:disablesocialspy")) {
+                this.socialSpyEnabled.put(uuid, false);
+            }
             this.save();
         }
     }
