@@ -18,6 +18,7 @@ import xyz.emirdev.emirutilsvelocity.events.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -35,6 +36,7 @@ import java.util.*;
 public class EmirUtilsVelocity {
     public static ProxyServer proxy;
     public static PluginData data;
+    public static PluginConfig config;
     public static EmirUtilsVelocity instance;
 
     public static List<UUID> staffChatToggledPlayers = new ArrayList<>();
@@ -48,19 +50,36 @@ public class EmirUtilsVelocity {
     public void EmirUtilsVelocityPlugin(ProxyServer proxy) {
         EmirUtilsVelocity.proxy = proxy;
     }
+    
+    public static void reloadConfig() {
+        if (config != null) config = null;
+
+        Path configPath = Paths.get("plugins/emirutilsvelocity/config.yml");
+        PluginConfig pc = new PluginConfig();
+        if (!configPath.toFile().exists())
+            YamlConfigurations.save(configPath, PluginConfig.class, pc);
+
+        config = YamlConfigurations.load(configPath, PluginConfig.class);
+    }
 
     @SuppressWarnings("deprecation")
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
         instance = this;
-        logger.info("Initializing configuration...");
-
-        Path configPath = Paths.get("plugins/emirutilsvelocity/data.yml");
+        
+        // Load plugin data
+        logger.info("Initializing plugin data...");
+        Path dataPath = Paths.get("plugins/emirutilsvelocity/data.yml");
         PluginData pd = new PluginData();
-        if (!configPath.toFile().exists())
-            YamlConfigurations.save(configPath, PluginData.class, pd);
+        if (!dataPath.toFile().exists())
+            YamlConfigurations.save(dataPath, PluginData.class, pd);
+            
+        data = YamlConfigurations.load(dataPath, PluginData.class);
 
-        data = YamlConfigurations.load(configPath, PluginData.class);
+        // Load plugin config
+        logger.info("Initializing plugin config...");
+        reloadConfig();
+        
 
         logger.info("Loading events...");
 
