@@ -5,6 +5,26 @@ import de.exlll.configlib.Configuration;
 
 @Configuration
 public class PluginConfig {
+    @Configuration
+    public static class ServerManager {
+        private boolean enabled;
+        private String ip;
+
+        public boolean isEnabled() {
+            return this.enabled;
+        }
+
+        public String getIp() {
+            return ip;
+        }
+
+        public ServerManager(boolean enabled, String ip) {
+            this.enabled = enabled;
+            this.ip = ip;
+        }
+
+        private ServerManager() {}
+    }
 
     @Configuration
     public static class IPCheck {
@@ -20,6 +40,14 @@ public class PluginConfig {
 
         private IPCheck() {}
 
+    }
+
+
+    @Comment("Server Manager Configuration")
+    private ServerManager serverManager = new ServerManager(false, "127.0.0.1");
+
+    public ServerManager getServerManagerConfig() {
+        return this.serverManager;
     }
 
     @Comment({"IP Check Configuration",

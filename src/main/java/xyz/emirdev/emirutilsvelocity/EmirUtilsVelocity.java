@@ -15,10 +15,13 @@ import org.reflections.scanners.SubTypesScanner;
 import org.slf4j.Logger;
 import xyz.emirdev.emirutilsvelocity.commands.*;
 import xyz.emirdev.emirutilsvelocity.events.*;
+import xyz.emirdev.emirutilsvelocity.servermanager.ServerManager;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -38,6 +41,10 @@ public class EmirUtilsVelocity {
     public static PluginData data;
     public static PluginConfig config;
     public static EmirUtilsVelocity instance;
+    public static ServerManager serverManager;
+
+    // Possibly dangerous (hope no one malicious uses this!)
+    private static String velocitySecret;
 
     public static List<UUID> staffChatToggledPlayers = new ArrayList<>();
     public static List<UUID> ownerChatToggledPlayers = new ArrayList<>();
@@ -49,8 +56,17 @@ public class EmirUtilsVelocity {
     @Inject
     public void EmirUtilsVelocityPlugin(ProxyServer proxy) {
         EmirUtilsVelocity.proxy = proxy;
+
     }
-    
+
+    public static ServerManager getServerManager() {
+        return serverManager;
+    }
+
+    public static String getVelocitySecret() {
+        return velocitySecret;
+    }
+
     public static void reloadConfig() {
         if (config != null) config = null;
 
@@ -64,7 +80,7 @@ public class EmirUtilsVelocity {
 
     @SuppressWarnings("deprecation")
     @Subscribe
-    public void onProxyInitialization(ProxyInitializeEvent event) {
+    public void onProxyInitialization(ProxyInitializeEvent event) throws IOException {
         instance = this;
         
         // Load plugin data
@@ -79,8 +95,38 @@ public class EmirUtilsVelocity {
         // Load plugin config
         logger.info("Initializing plugin config...");
         reloadConfig();
-        
 
+        // Load server manager
+        velocitySecret = Files.readAllLines(new File("forwarding.secret").toPath())
+                .get(0);
+
+        if (config.getServerManagerConfig().isEnabled()) {
+            logger.info("Loading server manager...");
+            serverManager = new ServerManager();
+
+            Path jarsPath = Paths.get("plugins/emirutilsvelocity/servermanager/jars");
+            Path serversPath = Paths.get("plugins/emirutilsvelocity/servermanager/servers");
+            try {
+                if (!Files.exists(jarsPath)) Files.createDirectory(jarsPath);
+                if (!Files.exists(serversPath)) Files.createDirectory(serversPath);
+            } catch (IOException exception) {
+                logger.error("A ServerManager directory could not be created.", exception);
+            }
+
+            CommandManager commandManager = proxy.getCommandManager();
+
+            commandManager.register(
+                    commandManager.metaBuilder("servermanager")
+                            .plugin(this)
+                            .aliases("sm")
+                            .build(),
+                    ServerManagerCommand.createBrigadierCommand(proxy)
+            );
+
+            logger.info("Registered command in class " + ServerManagerCommand.class.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "") + " named servermanager with aliases sm");
+        }
+        
+        // Load events
         logger.info("Loading events...");
 
         proxy.getEventManager().register(this, new StaffChatCommand());
@@ -125,6 +171,11 @@ public class EmirUtilsVelocity {
                 aliases = (List<String>) clazz.getDeclaredField("aliases").get(null);
             } catch (NoSuchFieldException | IllegalAccessException ignored) {}
 
+            // get if command should load automatically
+            boolean autoLoad = true;
+            try {
+                autoLoad = (boolean) clazz.getDeclaredField("autoLoad").get(null);
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {}
 
             // get value of command shit
             BrigadierCommand command;
@@ -136,18 +187,24 @@ public class EmirUtilsVelocity {
             }
 
 
+            String className = clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "");
+
             // run registration magic
-            CommandMeta.Builder metaBuilder = commandManager.metaBuilder(name);
-            if (aliases != null) metaBuilder.aliases(aliases.toArray(new String[0]));
+            if (autoLoad) {
+                CommandMeta.Builder metaBuilder = commandManager.metaBuilder(name);
+                if (aliases != null) metaBuilder.aliases(aliases.toArray(new String[0]));
 
-            commandManager.register(
-                metaBuilder
-                    .plugin(this)
-                    .build(),
-                command
-            );
+                commandManager.register(
+                        metaBuilder
+                                .plugin(this)
+                                .build(),
+                        command
+                );
 
-            logger.info("Registered command in class "+clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "")+" named "+name+((aliases != null) ? " with aliases "+String.join(", ", aliases) : ""));
+                logger.info("Registered command in class " + className + " named " + name + ((aliases != null) ? " with aliases " + String.join(", ", aliases) : ""));
+            } else {
+                logger.info("Skipped command in class " + className + " named " + name);
+            }
         }
 
         logger.info("Loaded successfully");
