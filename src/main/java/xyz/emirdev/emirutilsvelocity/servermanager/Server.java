@@ -7,8 +7,6 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class Server {
     private final String name;
@@ -45,33 +43,46 @@ public class Server {
             // server.properties
             String serverProp = main + "/server.properties";
             File serverPropFile = new File(serverProp);
-            if (!serverPropFile.exists()) serverPropFile.createNewFile();
-            FileWriter spWriter = new FileWriter(serverPropFile);
-            spWriter.write("online-mode=false");
-            spWriter.close();
+            if (!serverPropFile.exists()) {
+                serverPropFile.createNewFile();
+                FileWriter spWriter = new FileWriter(serverPropFile);
+                spWriter.write(
+                    String.format("""
+                        online-mode=false
+                        server-ip=0.0.0.0
+                        server-port=%s
+                        query.port=%s
+                        """,
+                        port, port
+                    )
+                );
+                spWriter.close();
+            }
 
             // config/paper-global.yml
             String paperConfig = main + "/config/paper-global.yml";
             Path paperConfigFolder = Paths.get(main + "/config");
             if (!Files.exists(paperConfigFolder)) Files.createDirectory(paperConfigFolder);
             File paperConfigFile = new File(paperConfig);
-            if (!paperConfigFile.exists()) paperConfigFile.createNewFile();
-            FileWriter pcWriter = new FileWriter(paperConfigFile);
-            pcWriter.write(
-                String.format("""
-                    proxies:
-                      bungee-cord:
-                        online-mode: true
-                      proxy-protocol: false
-                      velocity:
-                        enabled: true
-                        online-mode: true
-                        secret: %s
-                    """,
-                    EmirUtilsVelocity.getVelocitySecret()
-                )
-            );
-            pcWriter.close();
+            if (!paperConfigFile.exists()) {
+                paperConfigFile.createNewFile();
+                FileWriter pcWriter = new FileWriter(paperConfigFile);
+                pcWriter.write(
+                    String.format("""
+                        proxies:
+                          bungee-cord:
+                            online-mode: true
+                          proxy-protocol: false
+                          velocity:
+                            enabled: true
+                            online-mode: true
+                            secret: %s
+                        """,
+                        EmirUtilsVelocity.getVelocitySecret()
+                    )
+                );
+                pcWriter.close();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -116,11 +127,13 @@ public class Server {
     }
 
     public void stop() {
-        this.process.destroy();
+        process.destroy();
+        process = null;
     }
 
     public void kill() {
-        this.process.destroyForcibly();
+        process.destroyForcibly();
+        process = null;
     }
 
     public String getName() {
@@ -133,5 +146,29 @@ public class Server {
 
     public String getJar() {
         return jar;
+    }
+
+    public int getRam() {
+        return ram;
+    }
+
+    public String getFlags() {
+        return flags;
+    }
+
+    public Process getProcess() {
+        return process;
+    }
+
+    public ServerStatus getStatus() {
+        if (process != null && process.isAlive()) {
+            return ServerStatus.valueOf("Online");
+
+        } else if (Files.exists(Paths.get("plugins/emirutilsvelocity/servermanager/servers/" + name))) {
+            return ServerStatus.valueOf("Offline");
+
+        } else {
+            return ServerStatus.valueOf("Invalid");
+        }
     }
 }

@@ -1,8 +1,6 @@
 package xyz.emirdev.emirutilsvelocity.commands;
 
-import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.mojang.brigadier.Command;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -13,11 +11,13 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 import xyz.emirdev.emirutilsvelocity.servermanager.Server;
-import xyz.emirdev.emirutilsvelocity.servermanager.ServerType;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public final class ServerManagerCommand {
     // these are useless since its registered manually
@@ -97,8 +97,84 @@ public final class ServerManagerCommand {
                         )
                         ))))
                 )
+                .then(BrigadierCommand.literalArgumentBuilder("list")
+                        .executes(context -> {
+                            Map<String, Server> servers = EmirUtilsVelocity.getServerManager().getServers();
+                            File serversFolder = new File("plugins/emirutilsvelocity/servermanager/servers");
+                            String[] serversInFolder = serversFolder.list(((dir, name) -> dir.isDirectory() && !servers.containsKey(name)));
+
+                            context.getSource().sendMessage(Utils.deserialize("<gray>All servers (<yellow>"+ (servers.size() + serversInFolder.length) +"</yellow>):</gray>"));
+                            servers.forEach((name, server) -> {
+                                context.getSource().sendMessage(Utils.deserialize(String.format(
+                                        switch (server.getStatus()) {
+                                            case Online -> "<gray>- <yellow>%s</yellow> (<green>%s</green>)</gray>";
+                                            case Offline -> "<gray>- <yellow>%s</yellow> (<red>%s</red>)</gray>";
+                                            case Invalid -> "<gray>- <yellow>%s</yellow> (<dark_red>%s</dark_red>)</gray>";
+                                        },
+                                        name,
+                                        server.getStatus()
+                                )));
+                            });
+
+                            if (serversInFolder.length > 0) {
+                                Arrays.stream(serversInFolder).forEach(name -> {
+                                    context.getSource().sendMessage(Utils.deserialize(String.format(
+                                            "<gray>- <yellow>%s</yellow> (Unloaded)</gray>",
+                                            name
+                                    )));
+                                });
+                            }
+
+                            return Command.SINGLE_SUCCESS;
+                        })
+                )
+                .then(BrigadierCommand.literalArgumentBuilder("info")
+                        .then(BrigadierCommand.requiredArgumentBuilder("name", StringArgumentType.string())
+                                .suggests((ctx, builder) -> {
+                                    EmirUtilsVelocity.getServerManager().getServers().forEach((name1, server) -> builder.suggest(name1));
+
+                                    return builder.buildFuture();
+                                })
+                        .executes(context -> {
+                            String name = context.getArgument("name", String.class);
+
+                            if (EmirUtilsVelocity.getServerManager().getServers().containsKey(name)) {
+                                Server server = EmirUtilsVelocity.getServerManager().getServer(name);
+
+                                String status = switch (server.getStatus()) {
+                                    case Online -> "<green>Online</green>";
+                                    case Offline -> "<red>Offline</red>";
+                                    case Invalid -> "<dark_red>Invalid</dark_red>";
+                                };
+
+                                context.getSource().sendMessage(Utils.deserialize(
+                                        "<gray>Information of server <yellow>"+ server.getName() +"</yellow>:\n" +
+                                        "<gray>- <yellow>Status:</yellow> "+ status +"</gray>\n" +
+                                        "<gray>- <yellow>Port:</yellow> "+ server.getPort() +"</gray>\n" +
+                                        "<gray>- <yellow>Jar:</yellow> "+ server.getJar() +"</gray>\n" +
+                                        "<gray>- <yellow>Ram:</yellow> "+ server.getRam() +" MB</gray>" +
+                                        (!server.getFlags().isEmpty() ? "\n<gray>- <yellow>Flags:</yellow> "+ server.getFlags() +"</gray>" : "")
+                                ));
+
+                            } else {
+                                context.getSource().sendMessage(Utils.deserialize("<red>Server named " + name + " was not found."));
+                            }
+
+                            return Command.SINGLE_SUCCESS;
+                        })
+                ))
                 .build();
 
         return new BrigadierCommand(node);
     }
 }
+
+// this is for /servermanager load
+//String name = ctx.getArgument("name", String.class);
+//String serverFolderPath = "plugins/emirutilsvelocity/servermanager/servers" + name;
+//File serverFolder = new File(serverFolderPath);
+//
+//if (Files.exists(Path.of(serverFolderPath))) {
+//    String[] jars = serverFolder.list((dir, name1) -> name1.endsWith(".jar"));
+//    Arrays.stream(jars).forEach(builder::suggest);
+//}
