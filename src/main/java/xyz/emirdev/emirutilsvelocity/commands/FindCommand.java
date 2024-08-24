@@ -12,7 +12,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 import java.util.List;
 import java.util.UUID;
 
-public final class FindCommand {
+public final class FindCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "find";
     public static List<String> aliases = List.of("sfind");
 

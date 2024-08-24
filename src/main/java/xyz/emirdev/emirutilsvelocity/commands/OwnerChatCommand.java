@@ -26,7 +26,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public final class OwnerChatCommand {
+public final class OwnerChatCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "ownerchat";
     public static List<String> aliases = List.of("oc");
 

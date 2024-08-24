@@ -14,7 +14,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 
 import java.util.Objects;
 
-public final class CheckIPCommand {
+public final class CheckIPCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "checkip";
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {

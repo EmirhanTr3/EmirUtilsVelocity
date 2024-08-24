@@ -18,7 +18,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 
 import java.util.*;
 
-public final class MessageCommand {
+public final class MessageCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "message";
     public static List<String> aliases = List.of("msg", "tell", "whisper", "m", "t", "w", "emsg", "smsg");
 

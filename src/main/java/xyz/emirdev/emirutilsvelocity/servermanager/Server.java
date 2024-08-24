@@ -7,6 +7,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class Server {
     private final String name;
@@ -24,6 +26,8 @@ public class Server {
         this.flags = flags;
 
         Path serverPath = Paths.get("plugins/emirutilsvelocity/servermanager/servers/" + name);
+
+        if (Files.exists(serverPath)) return;
 
         try {
             if (!Files.exists(serverPath)) Files.createDirectory(serverPath);
@@ -113,15 +117,17 @@ public class Server {
         }
         this.process = process;
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line;
-            String logPrefix = "["+ process.pid() +"] " + "["+ name +":"+ port +"] ";
-            while ((line = reader.readLine()) != null) {
-                System.out.println(logPrefix + line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Future<Void> future = Executors.newSingleThreadExecutor().submit(() -> {
+            Process process1 = EmirUtilsVelocity.getServerManager().getServer(name).getProcess();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process1.getInputStream()))) {
+                String line;
+                String logPrefix = "["+ process1.pid() +"] " + "["+ name +":"+ port +"] ";
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(logPrefix + line);
+                }
+            } catch (IOException ignored) {}
+            return null;
+        });
 
         return process;
     }

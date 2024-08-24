@@ -56,7 +56,6 @@ public class EmirUtilsVelocity {
     @Inject
     public void EmirUtilsVelocityPlugin(ProxyServer proxy) {
         EmirUtilsVelocity.proxy = proxy;
-
     }
 
     public static ServerManager getServerManager() {
@@ -146,7 +145,17 @@ public class EmirUtilsVelocity {
 
         // Automatic command registration
         for (Class<?> clazz: new Reflections("xyz.emirdev.emirutilsvelocity.commands", new SubTypesScanner(false))
-            .getSubTypesOf(Object.class)) {
+            .getSubTypesOf(Command.class)) {
+            // get if command should load automatically
+            boolean autoLoad = true;
+            try {
+                autoLoad = (boolean) clazz.getDeclaredField("autoLoad").get(null);
+            } catch (NoSuchFieldException | IllegalAccessException ignored) {}
+            if (!autoLoad) {
+                logger.info("Skipped command in class " + clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", ""));
+                continue;
+            };
+
             // get brigadier command shit
             Method brigadierMethod;
             try {
@@ -171,12 +180,6 @@ public class EmirUtilsVelocity {
                 aliases = (List<String>) clazz.getDeclaredField("aliases").get(null);
             } catch (NoSuchFieldException | IllegalAccessException ignored) {}
 
-            // get if command should load automatically
-            boolean autoLoad = true;
-            try {
-                autoLoad = (boolean) clazz.getDeclaredField("autoLoad").get(null);
-            } catch (NoSuchFieldException | IllegalAccessException ignored) {}
-
             // get value of command shit
             BrigadierCommand command;
             try {
@@ -187,24 +190,19 @@ public class EmirUtilsVelocity {
             }
 
 
-            String className = clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "");
-
             // run registration magic
-            if (autoLoad) {
-                CommandMeta.Builder metaBuilder = commandManager.metaBuilder(name);
-                if (aliases != null) metaBuilder.aliases(aliases.toArray(new String[0]));
+            CommandMeta.Builder metaBuilder = commandManager.metaBuilder(name);
+            if (aliases != null) metaBuilder.aliases(aliases.toArray(new String[0]));
 
-                commandManager.register(
-                        metaBuilder
-                                .plugin(this)
-                                .build(),
-                        command
-                );
+            commandManager.register(
+                    metaBuilder
+                            .plugin(this)
+                            .build(),
+                    command
+            );
 
-                logger.info("Registered command in class " + className + " named " + name + ((aliases != null) ? " with aliases " + String.join(", ", aliases) : ""));
-            } else {
-                logger.info("Skipped command in class " + className + " named " + name);
-            }
+            String className = clazz.getName().replace("xyz.emirdev.emirutilsvelocity.commands.", "");
+            logger.info("Registered command in class " + className + " named " + name + ((aliases != null) ? " with aliases " + String.join(", ", aliases) : ""));
         }
 
         logger.info("Loaded successfully");

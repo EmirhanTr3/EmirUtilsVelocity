@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class ListCommand {
+public final class ListCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "list";
     public static List<String> aliases = List.of("slist");
 

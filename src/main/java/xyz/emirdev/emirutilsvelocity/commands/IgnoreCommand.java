@@ -15,7 +15,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 import java.util.List;
 import java.util.UUID;
 
-public final class IgnoreCommand {
+public final class IgnoreCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "ignore";
     public static List<String> aliases = List.of("signore", "eignore");
 

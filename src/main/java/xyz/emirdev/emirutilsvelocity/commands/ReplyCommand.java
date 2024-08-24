@@ -14,7 +14,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 import java.util.List;
 import java.util.UUID;
 
-public final class ReplyCommand {
+public final class ReplyCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "reply";
     public static List<String> aliases = List.of("r", "ereply", "er", "sreply", "sr");
 

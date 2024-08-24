@@ -19,7 +19,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 
 import java.util.*;
 
-public final class SocialSpyCommand {
+public final class SocialSpyCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "socialspy";
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {

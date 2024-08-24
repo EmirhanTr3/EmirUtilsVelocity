@@ -26,7 +26,7 @@ import xyz.emirdev.emirutilsvelocity.Utils;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-public final class StaffChatCommand {
+public final class StaffChatCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "staffchat";
     public static List<String> aliases = List.of("sc");
 

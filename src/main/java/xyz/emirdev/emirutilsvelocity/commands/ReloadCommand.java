@@ -8,7 +8,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.Utils;
 
-public final class ReloadCommand {
+public final class ReloadCommand extends xyz.emirdev.emirutilsvelocity.Command {
     public static String name = "euvreload";
 
     public static BrigadierCommand createBrigadierCommand(final ProxyServer proxy) {
