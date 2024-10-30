@@ -14,38 +14,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class StaffChatCommand {
+public class OwnerChatCommand {
     public static List<UUID> toggledPlayers = new ArrayList<>();
 
-    @Command({"staffchat", "sc"})
-    @CommandPermission("emirutilsvelocity.staffchat")
+    @Command({"ownerchat", "oc"})
+    @CommandPermission("emirutilsvelocity.ownerchat")
     public void staffchat(CommandSource sender, @Optional String message) {
         if (message != null) {
             if (sender instanceof Player player) {
-                sendStaffChatMessage(player, message);
+                sendOwnerChatMessage(player, message);
             } else {
-                sendStaffChatMessage(message);
+                sendOwnerChatMessage(message);
             }
         } else {
             if (sender instanceof Player player) {
                 if (!toggledPlayers.contains(player.getUniqueId())) {
                     toggledPlayers.add(player.getUniqueId());
-                    Utils.sendMessage(sender, "<green>You are <bold>now</bold> chatting in staff chat.");
+                    Utils.sendMessage(sender, "<green>You are <bold>now</bold> chatting in owner chat.");
                 } else {
                     toggledPlayers.remove(player.getUniqueId());
-                    Utils.sendMessage(sender, "<green>You are <bold>no longer</bold> chatting in staff chat.");
+                    Utils.sendMessage(sender, "<green>You are <bold>no longer</bold> chatting in owner chat.");
                 }
             } else {
-                Utils.sendError(sender, "You cannot toggle staff chat as console.");
+                Utils.sendError(sender, "You cannot toggle owner chat as console.");
             }
         }
     }
 
-    public static void sendStaffChatMessage(Player player, String message) {
+    public static void sendOwnerChatMessage(Player player, String message) {
         LuckPermsUtils.getDisplayName(player).thenAcceptAsync(displayname -> {
             RedisBungeeUtils.broadcastWithPermission(
-                    "emirutilsvelocity.staffchat",
-                    "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>%s<dark_aqua>] <dark_aqua>[<aqua>%s<dark_aqua>] <aqua>%s<aqua>: %s",
+                    "emirutilsvelocity.ownerchat",
+                    "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>%s<dark_red>] <dark_red>[<red>%s<dark_red>] <red>%s<red>: %s",
                     EmirUtilsVelocity.getRedisBungee().getProxyId(),
                     EmirUtilsVelocity.getRedisBungee().getServerFor(player.getUniqueId()).getName(),
                     displayname,
@@ -54,10 +54,10 @@ public class StaffChatCommand {
         });
     }
 
-    public static void sendStaffChatMessage(String message) {
+    public static void sendOwnerChatMessage(String message) {
         RedisBungeeUtils.broadcastWithPermission(
-                "emirutilsvelocity.staffchat",
-                "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>%s<dark_aqua>] <aqua>Console<aqua>: %s",
+                "emirutilsvelocity.ownerchat",
+                "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>%s<dark_red>] <red>Console<red>: %s",
                 EmirUtilsVelocity.getRedisBungee().getProxyId(),
                 message
         );

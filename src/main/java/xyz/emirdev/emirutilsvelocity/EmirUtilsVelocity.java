@@ -14,9 +14,15 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.velocity.VelocityLamp;
 import revxrsal.commands.velocity.VelocityLampConfig;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
+import xyz.emirdev.emirutilsvelocity.commands.OwnerChatCommand;
 import xyz.emirdev.emirutilsvelocity.commands.StaffChatCommand;
 import xyz.emirdev.emirutilsvelocity.config.ConfigHandler;
 import xyz.emirdev.emirutilsvelocity.database.Database;
+import xyz.emirdev.emirutilsvelocity.events.ChatEvent;
+import xyz.emirdev.emirutilsvelocity.events.NetworkJoinEvent;
+import xyz.emirdev.emirutilsvelocity.events.NetworkLeaveEvent;
+import xyz.emirdev.emirutilsvelocity.events.ChangeServerEvent;
+import xyz.emirdev.emirutilsvelocity.utils.RedisBungeeUtils;
 
 import java.util.List;
 
@@ -86,13 +92,18 @@ public class EmirUtilsVelocity {
                 .build();
 
         List.of(
-                new StaffChatCommand()
+                new StaffChatCommand(),
+                new OwnerChatCommand()
         ).forEach(lamp::register);
 
         lamp.accept(brigadier(config));
 
         List.of(
-                new RedisBungeeUtils()
+                new RedisBungeeUtils(),
+                new ChatEvent(),
+                new NetworkJoinEvent(),
+                new NetworkLeaveEvent(),
+                new ChangeServerEvent()
         ).forEach(e -> proxy.getEventManager().register(this, e));
     }
 }

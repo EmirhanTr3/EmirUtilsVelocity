@@ -1,10 +1,11 @@
-package xyz.emirdev.emirutilsvelocity;
+package xyz.emirdev.emirutilsvelocity.utils;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 
 public class Utils {
     public static Component getPrefix() {
@@ -16,11 +17,11 @@ public class Utils {
     }
 
     public static void sendMessage(CommandSource sender, String string, Object... args) {
-        sender.sendMessage(getPrefix().append(format(string, args)));
+        sender.sendMessage(format(string, args));
     }
 
     public static void sendError(CommandSource sender, String string, Object... args) {
-        sender.sendMessage(getPrefix().append(format("<#ee4444>" + string, args)));
+        sender.sendMessage(format("<#ee4444>" + string, args));
     }
 
     public static void broadcast(String string, Object... args) {

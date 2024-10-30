@@ -1,9 +1,10 @@
-package xyz.emirdev.emirutilsvelocity;
+package xyz.emirdev.emirutilsvelocity.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.velocitypowered.api.event.Subscribe;
+import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
