@@ -7,7 +7,7 @@ import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.utils.LuckPermsUtils;
-import xyz.emirdev.emirutilsvelocity.utils.RedisBungeeUtils;
+import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 import java.util.ArrayList;

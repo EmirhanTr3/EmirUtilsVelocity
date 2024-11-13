@@ -3,7 +3,7 @@ package xyz.emirdev.emirutilsvelocity.events;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.proxy.Player;
-import xyz.emirdev.emirutilsvelocity.utils.RedisBungeeUtils;
+import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
 
 public class NetworkLeaveEvent {
 

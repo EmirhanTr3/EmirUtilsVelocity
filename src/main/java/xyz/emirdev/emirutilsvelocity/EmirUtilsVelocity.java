@@ -7,6 +7,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import org.slf4j.Logger;
@@ -14,15 +15,17 @@ import revxrsal.commands.Lamp;
 import revxrsal.commands.velocity.VelocityLamp;
 import revxrsal.commands.velocity.VelocityLampConfig;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
-import xyz.emirdev.emirutilsvelocity.commands.OwnerChatCommand;
-import xyz.emirdev.emirutilsvelocity.commands.StaffChatCommand;
+import xyz.emirdev.emirutilsvelocity.commands.*;
 import xyz.emirdev.emirutilsvelocity.config.ConfigHandler;
 import xyz.emirdev.emirutilsvelocity.database.Database;
 import xyz.emirdev.emirutilsvelocity.events.ChatEvent;
 import xyz.emirdev.emirutilsvelocity.events.NetworkJoinEvent;
 import xyz.emirdev.emirutilsvelocity.events.NetworkLeaveEvent;
 import xyz.emirdev.emirutilsvelocity.events.ChangeServerEvent;
-import xyz.emirdev.emirutilsvelocity.utils.RedisBungeeUtils;
+import xyz.emirdev.emirutilsvelocity.parameters.RegisteredServerParameterType;
+import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
+import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
+import xyz.emirdev.emirutilsvelocity.parameters.RedisPlayerParameterType;
 
 import java.util.List;
 
@@ -89,11 +92,18 @@ public class EmirUtilsVelocity {
         VelocityLampConfig<VelocityCommandActor> config = VelocityLampConfig
                 .createDefault(this, proxy);
         Lamp<VelocityCommandActor> lamp = VelocityLamp.builder(config)
+                .parameterTypes(builder -> {
+                    builder.addParameterType(RedisPlayer.class, new RedisPlayerParameterType());
+                    builder.addParameterType(RegisteredServer.class, new RegisteredServerParameterType());
+                })
                 .build();
 
         List.of(
                 new StaffChatCommand(),
-                new OwnerChatCommand()
+                new OwnerChatCommand(),
+                new FindCommand(),
+                new ListCommand(),
+                new ServerCommand()
         ).forEach(lamp::register);
 
         lamp.accept(brigadier(config));

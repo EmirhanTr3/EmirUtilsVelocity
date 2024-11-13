@@ -4,7 +4,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
-import xyz.emirdev.emirutilsvelocity.utils.RedisBungeeUtils;
+import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
 
 public class ChangeServerEvent {
 
