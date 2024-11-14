@@ -6,10 +6,6 @@ import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
 public class FindCommand {
 
     @Command({"find", "sfind"})

@@ -22,11 +22,13 @@ import xyz.emirdev.emirutilsvelocity.events.ChatEvent;
 import xyz.emirdev.emirutilsvelocity.events.NetworkJoinEvent;
 import xyz.emirdev.emirutilsvelocity.events.NetworkLeaveEvent;
 import xyz.emirdev.emirutilsvelocity.events.ChangeServerEvent;
+import xyz.emirdev.emirutilsvelocity.parameters.InetSocketAddressParameterType;
 import xyz.emirdev.emirutilsvelocity.parameters.RegisteredServerParameterType;
 import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
 import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
 import xyz.emirdev.emirutilsvelocity.parameters.RedisPlayerParameterType;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 import static revxrsal.commands.velocity.VelocityVisitors.brigadier;
@@ -89,12 +91,13 @@ public class EmirUtilsVelocity {
         database = new Database();
         luckPerms = LuckPermsProvider.get();
 
-        VelocityLampConfig<VelocityCommandActor> config = VelocityLampConfig
+        VelocityLampConfig<VelocityCommandActor> lampConfig = VelocityLampConfig
                 .createDefault(this, proxy);
-        Lamp<VelocityCommandActor> lamp = VelocityLamp.builder(config)
+        Lamp<VelocityCommandActor> lamp = VelocityLamp.builder(lampConfig)
                 .parameterTypes(builder -> {
                     builder.addParameterType(RedisPlayer.class, new RedisPlayerParameterType());
                     builder.addParameterType(RegisteredServer.class, new RegisteredServerParameterType());
+                    builder.addParameterType(InetSocketAddress.class, new InetSocketAddressParameterType());
                 })
                 .build();
 
@@ -103,10 +106,14 @@ public class EmirUtilsVelocity {
                 new OwnerChatCommand(),
                 new FindCommand(),
                 new ListCommand(),
-                new ServerCommand()
+                new ServerCommand(),
+                new CheckIPCommand()
         ).forEach(lamp::register);
 
-        lamp.accept(brigadier(config));
+        if (config.getHubServer() != null) lamp.register(new HubCommand());
+        if (config.getDiscordInvite() != null) lamp.register(new DiscordCommand());
+
+        lamp.accept(brigadier(lampConfig));
 
         List.of(
                 new RedisBungeeUtils(),

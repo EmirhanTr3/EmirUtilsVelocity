@@ -40,7 +40,7 @@ public class RedisBungeeUtils {
         Gson gson = new Gson();
         if (event.getChannel().startsWith("emirutilsvelocity:")) {
             String identifier = event.getChannel().replaceFirst("emirutilsvelocity:", "");
-            Map<String, String> map = gson.fromJson(event.getMessage(), new TypeToken<>() {});
+            Map<String, String> map = gson.fromJson(event.getMessage(), new TypeToken<>(){});
 
             if (identifier.equals("broadcastWithPermission")) {
                 Utils.broadcastWithPermission(map.get("perm"), map.get("message"));
