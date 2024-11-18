@@ -58,11 +58,17 @@ public class Utils {
         return LegacyComponentSerializer.legacySection().serialize(component);
     }
 
-    public static void connectTo(Player player, RegisteredServer server) {
-        Utils.sendMessage(player,
-                "<#00ffff>Connecting to server <#00cccc>%s<#00ffff>...",
-                server.getServerInfo().getName()
-        );
+    public static void connectPlayer(Player player, RegisteredServer server) {
+        connectPlayer(player, server, false);
+    }
+
+    public static void connectPlayer(Player player, RegisteredServer server, boolean silent) {
+        if (!silent) {
+            Utils.sendMessage(player,
+                    "<#00eeee>Connecting to server <#00ccff>%s<#00eeee>...",
+                    server.getServerInfo().getName()
+            );
+        }
 
         CompletableFuture<ConnectionRequestBuilder.Result> request = player.createConnectionRequest(server).connect();
 

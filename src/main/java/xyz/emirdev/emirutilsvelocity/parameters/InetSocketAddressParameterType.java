@@ -3,13 +3,12 @@ package xyz.emirdev.emirutilsvelocity.parameters;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
-import revxrsal.commands.exception.CommandErrorException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
+import xyz.emirdev.emirutilsvelocity.EUVCommandException;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
-import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 import java.net.InetSocketAddress;
 
@@ -20,10 +19,10 @@ public final class InetSocketAddressParameterType implements ParameterType<Veloc
         String name = input.readString();
 
         if (!name.matches("(\\b25[0-5]|\\b2[0-4][0-9]|\\b[01]?[0-9][0-9]?)(.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")) {
-            throw new CommandErrorException(Utils.convertComponentToLegacyString(Utils.format(
+            throw new EUVCommandException(
                     "<red>Invalid IP address:</red> <yellow>%s</yellow>",
                     name
-            )));
+            );
         }
 
         return new InetSocketAddress(name, 0);

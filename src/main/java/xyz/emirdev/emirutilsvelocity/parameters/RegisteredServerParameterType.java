@@ -1,18 +1,14 @@
 package xyz.emirdev.emirutilsvelocity.parameters;
 
-import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
-import revxrsal.commands.exception.CommandErrorException;
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
-import revxrsal.commands.velocity.exception.InvalidPlayerException;
+import xyz.emirdev.emirutilsvelocity.EUVCommandException;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
-import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 import java.util.Optional;
 
@@ -24,11 +20,9 @@ public final class RegisteredServerParameterType implements ParameterType<Veloci
 
         Optional<RegisteredServer> server = EmirUtilsVelocity.getProxy().getServer(name);
 
-        if (server.isEmpty()) throw new CommandErrorException(
-                Utils.convertComponentToLegacyString(Utils.format(
-                        "<red>Invalid server:</red> <yellow>%s</yellow>",
-                        name
-                ))
+        if (server.isEmpty()) throw new EUVCommandException(
+                "<red>Invalid server:</red> <yellow>%s</yellow>",
+                name
         );
 
         return server.get();

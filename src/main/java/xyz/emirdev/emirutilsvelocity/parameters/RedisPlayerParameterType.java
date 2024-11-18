@@ -7,7 +7,7 @@ import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
-import revxrsal.commands.velocity.exception.InvalidPlayerException;
+import xyz.emirdev.emirutilsvelocity.EUVCommandException;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
 
@@ -19,7 +19,10 @@ public final class RedisPlayerParameterType implements ParameterType<VelocityCom
 
         RedisPlayer player = new RedisPlayer(name);
 
-        if (!player.isOnline()) throw new InvalidPlayerException(name);
+        if (!player.isOnline()) throw new EUVCommandException(
+                "<red>Invalid player:</red> <yellow>%s</yellow>",
+                name
+        );
 
         return player;
     }

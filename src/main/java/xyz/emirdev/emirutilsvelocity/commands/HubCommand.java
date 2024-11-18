@@ -16,6 +16,6 @@ public class HubCommand {
             return;
         }
 
-        Utils.connectTo(player, server);
+        Utils.connectPlayer(player, server);
     }
 }

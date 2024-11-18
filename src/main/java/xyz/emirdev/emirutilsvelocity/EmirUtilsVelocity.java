@@ -107,7 +107,10 @@ public class EmirUtilsVelocity {
                 new FindCommand(),
                 new ListCommand(),
                 new ServerCommand(),
-                new CheckIPCommand()
+                new CheckIPCommand(),
+                new SendCommand(),
+                new MessageCommand(),
+                new ReplyCommand()
         ).forEach(lamp::register);
 
         if (config.getHubServer() != null) lamp.register(new HubCommand());

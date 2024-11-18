@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.server.RegisteredServer;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
@@ -32,7 +33,35 @@ public class RedisBungeeUtils {
 
         String json = gson.toJson(map);
         EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:message", json);
+    }
 
+    public static void connectAllPlayers(String server) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("server", server);
+
+        String json = gson.toJson(map);
+        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:connectAllPlayers", json);
+    }
+
+    public static void connectPlayer(UUID uuid, String server) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("uuid", uuid.toString());
+        map.put("server", server);
+
+        String json = gson.toJson(map);
+        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:connectPlayer", json);
+    }
+
+    public static void connectAllPlayersInServer(String server, String targetServer) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("server", server);
+        map.put("targetServer", targetServer);
+
+        String json = gson.toJson(map);
+        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:connectAllPlayersInServer", json);
     }
 
     @Subscribe
@@ -45,9 +74,31 @@ public class RedisBungeeUtils {
             if (identifier.equals("broadcastWithPermission")) {
                 Utils.broadcastWithPermission(map.get("perm"), map.get("message"));
 
-            } else if (identifier.equals("emirutilsvelocity:message")) {
+            } else if (identifier.equals("message")) {
                 Optional<Player> player = EmirUtilsVelocity.getProxy().getPlayer(UUID.fromString(map.get("uuid")));
                 player.ifPresent(value -> Utils.sendMessage(value, map.get("message")));
+
+            } else if (identifier.equals("connectAllPlayers")) {
+                Optional<RegisteredServer> optionalServer = EmirUtilsVelocity.getProxy().getServer(map.get("server"));
+                optionalServer.ifPresent(server ->
+                        server.getPlayersConnected().forEach(player -> Utils.connectPlayer(player, server))
+                );
+
+            } else if (identifier.equals("connectPlayer")) {
+                Optional<RegisteredServer> optionalServer = EmirUtilsVelocity.getProxy().getServer(map.get("server"));
+                optionalServer.ifPresent(server -> {
+                    Optional<Player> optionalPlayer = EmirUtilsVelocity.getProxy().getPlayer(UUID.fromString(map.get("uuid")));
+                    optionalPlayer.ifPresent(player -> Utils.connectPlayer(player, server));
+                });
+
+            } else if (identifier.equals("connectAllPlayersInServer")) {
+                Optional<RegisteredServer> optionalServer = EmirUtilsVelocity.getProxy().getServer(map.get("server"));
+                optionalServer.ifPresent(server -> {
+                    Optional<RegisteredServer> optionalTargetServer = EmirUtilsVelocity.getProxy().getServer(map.get("targetServer"));
+                    optionalTargetServer.ifPresent(targetServer -> {
+                        targetServer.getPlayersConnected().forEach(player -> Utils.connectPlayer(player, server));
+                    });
+                });
             }
         }
     }
