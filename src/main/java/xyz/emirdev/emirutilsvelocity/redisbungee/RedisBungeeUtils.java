@@ -6,6 +6,7 @@ import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
@@ -64,6 +65,32 @@ public class RedisBungeeUtils {
         EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:connectAllPlayersInServer", json);
     }
 
+    public static void kickPlayer(UUID uuid, String reason, Object... args) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("uuid", uuid.toString());
+        map.put("reason", String.format(reason, args));
+
+        String json = gson.toJson(map);
+        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:kick", json);
+    }
+
+    public static void sendSocialSpyMessage(Player player, RedisPlayer target, String message) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("player", player.getUniqueId().toString());
+        map.put("target", target.getUniqueId().toString());
+        map.put("message", String.format(
+                "<#41BBFF>[<#2595CC>SocialSpy<#41BBFF>] <#2595CC>%s <#41BBFF>→ <#2595CC>%s<#41BBFF>: <#60CCFF>%s",
+                player.getUsername(),
+                target.getName(),
+                Utils.sanitize(message)
+        ));
+
+        String json = gson.toJson(map);
+        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:socialSpyMessage", json);
+    }
+
     @Subscribe
     public void onPubSubMessageEvent(PubSubMessageEvent event) {
         Gson gson = new Gson();
@@ -99,6 +126,28 @@ public class RedisBungeeUtils {
                         targetServer.getPlayersConnected().forEach(player -> Utils.connectPlayer(player, server));
                     });
                 });
+
+            } else if (identifier.equals("kick")) {
+                Optional<Player> optionalPlayer = EmirUtilsVelocity.getProxy().getPlayer(UUID.fromString(map.get("uuid")));
+                optionalPlayer.ifPresent(player -> player.disconnect(MiniMessage.miniMessage().deserialize(map.get("reason"))));
+
+            } else if (identifier.equals("socialSpyMessage")) {
+                for (Player player : EmirUtilsVelocity.getProxy().getAllPlayers()) {
+                    if (EmirUtilsVelocity.getDatabase().getPlayerData(player.getUniqueId()).hasSocialSpy()) {
+                        if (player.hasPermission("emirutilsvelocity.socialspy")) {
+                            if (
+                                    map.get("player").equals(player.getUniqueId().toString()) ||
+                                    map.get("target").equals(player.getUniqueId().toString())
+                            ) continue;
+
+                            Utils.sendMessage(player, map.get("message"));
+                        } else {
+                            EmirUtilsVelocity.getDatabase().updateSocialSpy(player.getUniqueId(), false);
+                        }
+                    }
+                }
+
+                Utils.sendMessage(EmirUtilsVelocity.getProxy().getConsoleCommandSource(), map.get("message"));
             }
         }
     }

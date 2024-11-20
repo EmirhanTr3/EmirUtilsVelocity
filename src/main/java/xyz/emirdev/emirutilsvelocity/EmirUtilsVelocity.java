@@ -54,6 +54,10 @@ public class EmirUtilsVelocity {
     @Inject
     private Logger logger;
 
+    public Logger getLogger() {
+        return logger;
+    }
+
     public static EmirUtilsVelocity get() {
         return instance;
     }
@@ -110,7 +114,10 @@ public class EmirUtilsVelocity {
                 new CheckIPCommand(),
                 new SendCommand(),
                 new MessageCommand(),
-                new ReplyCommand()
+                new ReplyCommand(),
+                new KickCommand(),
+                new SocialSpyCommand(),
+                new IgnoreCommand()
         ).forEach(lamp::register);
 
         if (config.getHubServer() != null) lamp.register(new HubCommand());

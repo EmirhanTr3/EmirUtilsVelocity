@@ -49,7 +49,7 @@ public class OwnerChatCommand {
                     EmirUtilsVelocity.getRedisBungee().getProxyId(),
                     EmirUtilsVelocity.getRedisBungee().getServerFor(player.getUniqueId()).getName(),
                     displayname,
-                    message
+                    Utils.sanitize(message)
             );
         });
     }
@@ -59,7 +59,7 @@ public class OwnerChatCommand {
                 "emirutilsvelocity.ownerchat",
                 "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>%s<dark_red>] <red>Console<red>: %s",
                 EmirUtilsVelocity.getRedisBungee().getProxyId(),
-                message
+                Utils.sanitize(message)
         );
     }
 }

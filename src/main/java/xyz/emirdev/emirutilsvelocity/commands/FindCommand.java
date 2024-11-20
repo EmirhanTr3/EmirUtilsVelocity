@@ -12,7 +12,7 @@ public class FindCommand {
     @CommandPermission("emirutilsvelocity.find")
     public void find(CommandSource sender, RedisPlayer player) {
         Utils.sendMessage(sender,
-                "<aqua>%s is found in %s from proxy %s",
+                "<#00ccff>%s <#00eeee>is found in <#00ccff>%s <#00eeee>from proxy <#00ccff>%s",
                 player.getName(),
                 player.getServer().getName(),
                 player.getProxy()

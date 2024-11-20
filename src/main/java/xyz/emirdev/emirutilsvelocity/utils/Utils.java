@@ -26,6 +26,10 @@ public class Utils {
         return format("<gradient:#00eeaa:#00aaaa><bold>EmirUtilsVelocity<reset> <dark_gray>» ");
     }
 
+    public static String sanitize(String string) {
+        return string.replaceAll("%", "%%");
+    }
+
     public static Component format(String string, Object... args) {
         return MiniMessage.miniMessage().deserialize(String.format(string, args));
     }

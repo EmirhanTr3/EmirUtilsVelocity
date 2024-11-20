@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.Player;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
+import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
 import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
@@ -29,18 +30,30 @@ public class MessageCommand {
         Utils.sendMessage(sender,
                 "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>me <#41BBFF>→ <#2595CC>%s<#41BBFF>: <#60CCFF>%s",
                 target.getName(),
-                message
+                Utils.sanitize(message)
         );
     }
 
     public static void sendMessage(Player player, RedisPlayer target, String message) {
+        if (
+                EmirUtilsVelocity.getDatabase().isIgnored(player.getUniqueId(), target.getUniqueId()) ||
+                EmirUtilsVelocity.getDatabase().isIgnored(target.getUniqueId(), player.getUniqueId())
+        ) {
+            Utils.sendError(player,
+                    "You can't send a message to %s.",
+                    target.getName()
+            );
+            return;
+        }
+
         _sendMessage(player, target, message);
 
         target.sendMessage(
                 "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>%s <#41BBFF>→ <#2595CC>me<#41BBFF>: <#60CCFF>%s",
                 player.getUsername(),
-                message
+                Utils.sanitize(message)
         );
+        RedisBungeeUtils.sendSocialSpyMessage(player, target, message);
 
         lastMessagedPlayer.put(player.getUniqueId(), target.getUniqueId());
         lastMessagedPlayer.put(target.getUniqueId(), player.getUniqueId());
@@ -51,7 +64,7 @@ public class MessageCommand {
 
         target.sendMessage(
                 "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>Console <#41BBFF>→ <#2595CC>me<#41BBFF>: <#60CCFF>%s",
-                message
+                Utils.sanitize(message)
         );
     }
 }

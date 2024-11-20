@@ -49,7 +49,7 @@ public class StaffChatCommand {
                     EmirUtilsVelocity.getRedisBungee().getProxyId(),
                     EmirUtilsVelocity.getRedisBungee().getServerFor(player.getUniqueId()).getName(),
                     displayname,
-                    message
+                    Utils.sanitize(message)
             );
         });
     }
@@ -59,7 +59,7 @@ public class StaffChatCommand {
                 "emirutilsvelocity.staffchat",
                 "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>%s<dark_aqua>] <aqua>Console<aqua>: %s",
                 EmirUtilsVelocity.getRedisBungee().getProxyId(),
-                message
+                Utils.sanitize(message)
         );
     }
 }
