@@ -108,7 +108,7 @@ public class RedisBungeeUtils {
             } else if (identifier.equals("connectAllPlayers")) {
                 Optional<RegisteredServer> optionalServer = EmirUtilsVelocity.getProxy().getServer(map.get("server"));
                 optionalServer.ifPresent(server ->
-                        server.getPlayersConnected().forEach(player -> Utils.connectPlayer(player, server))
+                        EmirUtilsVelocity.getProxy().getAllPlayers().forEach(player -> Utils.connectPlayer(player, server))
                 );
 
             } else if (identifier.equals("connectPlayer")) {
@@ -123,7 +123,7 @@ public class RedisBungeeUtils {
                 optionalServer.ifPresent(server -> {
                     Optional<RegisteredServer> optionalTargetServer = EmirUtilsVelocity.getProxy().getServer(map.get("targetServer"));
                     optionalTargetServer.ifPresent(targetServer -> {
-                        targetServer.getPlayersConnected().forEach(player -> Utils.connectPlayer(player, server));
+                        server.getPlayersConnected().forEach(player -> Utils.connectPlayer(player, targetServer));
                     });
                 });
 
