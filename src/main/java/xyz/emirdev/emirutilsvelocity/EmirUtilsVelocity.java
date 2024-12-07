@@ -22,6 +22,7 @@ import xyz.emirdev.emirutilsvelocity.events.ChatEvent;
 import xyz.emirdev.emirutilsvelocity.events.NetworkJoinEvent;
 import xyz.emirdev.emirutilsvelocity.events.NetworkLeaveEvent;
 import xyz.emirdev.emirutilsvelocity.events.ChangeServerEvent;
+import xyz.emirdev.emirutilsvelocity.managers.BackendIntegrationManager;
 import xyz.emirdev.emirutilsvelocity.parameters.InetSocketAddressParameterType;
 import xyz.emirdev.emirutilsvelocity.parameters.RegisteredServerParameterType;
 import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
@@ -50,6 +51,7 @@ public class EmirUtilsVelocity {
     private static ConfigHandler config;
     private static Database database;
     private static LuckPerms luckPerms;
+    private static BackendIntegrationManager backendIntegrationManager;
 
     @Inject
     private Logger logger;
@@ -94,6 +96,7 @@ public class EmirUtilsVelocity {
         config = new ConfigHandler();
         database = new Database();
         luckPerms = LuckPermsProvider.get();
+        backendIntegrationManager = new BackendIntegrationManager();
 
         VelocityLampConfig<VelocityCommandActor> lampConfig = VelocityLampConfig
                 .createDefault(this, proxy);
@@ -127,6 +130,7 @@ public class EmirUtilsVelocity {
 
         List.of(
                 new RedisBungeeUtils(),
+                backendIntegrationManager,
                 new ChatEvent(),
                 new NetworkJoinEvent(),
                 new NetworkLeaveEvent(),
