@@ -15,7 +15,7 @@ public class ChangeServerEvent {
 
             RedisBungeeUtils.broadcastWithPermission(
                     "emirutilsvelocity.notifications.changeserver",
-                    "<#2070BB>\uD83D\uDD01 <#3085DD>[<#2070BB>N<#3090DD>] [<#2070BB>↔<#3090DD>] <#1560AA>%s <#3090DD>(<#2070BB>%s <#1560AA>→ <#2070BB>%s<#3090DD>) <#3090DD>[<#2070BB>%s<#3090DD>]",
+                    "<#2070BB>\uD83D\uDD01 <#3085DD>[<#2070BB>N<#3090DD>] [<#2070BB>↔<#3090DD>] <#1560AA>{0} <#3090DD>(<#2070BB>{1} <#1560AA>→ <#2070BB>{2}<#3090DD>) <#3090DD>[<#2070BB>{3}<#3090DD>]",
                     player.getUsername(),
                     event.getPreviousServer().getServerInfo().getName(),
                     event.getOriginalServer().getServerInfo().getName(),

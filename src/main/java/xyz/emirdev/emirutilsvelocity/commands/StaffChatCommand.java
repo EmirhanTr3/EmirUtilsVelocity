@@ -45,11 +45,11 @@ public class StaffChatCommand {
         LuckPermsUtils.getDisplayName(player).thenAcceptAsync(displayname -> {
             RedisBungeeUtils.broadcastWithPermission(
                     "emirutilsvelocity.staffchat",
-                    "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>%s<dark_aqua>] <dark_aqua>[<aqua>%s<dark_aqua>] <aqua>%s<aqua>: %s",
+                    "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <dark_aqua>[<aqua>{1}<dark_aqua>] <aqua>{2}<aqua>: {3}",
                     EmirUtilsVelocity.getRedisBungee().getProxyId(),
                     EmirUtilsVelocity.getRedisBungee().getServerFor(player.getUniqueId()).getName(),
                     displayname,
-                    Utils.sanitize(message)
+                    message
             );
         });
     }
@@ -57,9 +57,9 @@ public class StaffChatCommand {
     public static void sendStaffChatMessage(String message) {
         RedisBungeeUtils.broadcastWithPermission(
                 "emirutilsvelocity.staffchat",
-                "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>%s<dark_aqua>] <aqua>Console<aqua>: %s",
+                "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <aqua>Console<aqua>: {1}",
                 EmirUtilsVelocity.getRedisBungee().getProxyId(),
-                Utils.sanitize(message)
+                message
         );
     }
 }

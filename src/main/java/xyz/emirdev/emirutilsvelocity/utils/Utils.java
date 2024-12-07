@@ -26,12 +26,21 @@ public class Utils {
         return format("<gradient:#00eeaa:#00aaaa><bold>EmirUtilsVelocity<reset> <dark_gray>» ");
     }
 
-    public static String sanitize(String string) {
-        return string.replaceAll("%", "%%");
+    /**
+     *
+     * @param string string to format
+     * @param args arguments that will be replaced in the string. argument format: {0}
+     * @return formatted string
+     */
+    public static String stringFormat(String string, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            string = string.replaceFirst("\\{"+ i + "}", args[i].toString());
+        }
+        return string;
     }
 
     public static Component format(String string, Object... args) {
-        return MiniMessage.miniMessage().deserialize(String.format(string, args));
+        return MiniMessage.miniMessage().deserialize(stringFormat(string, args));
     }
 
     public static void sendMessage(CommandSource sender, String string, Object... args) {
@@ -69,7 +78,7 @@ public class Utils {
     public static void connectPlayer(Player player, RegisteredServer server, boolean silent) {
         if (!silent) {
             Utils.sendMessage(player,
-                    "<#00eeee>Connecting to server <#00ccff>%s<#00eeee>...",
+                    "<#00eeee>Connecting to server <#00ccff>{0}<#00eeee>...",
                     server.getServerInfo().getName()
             );
         }
@@ -84,7 +93,7 @@ public class Utils {
                 }
 
                 Component message = Utils.format(
-                        "<#ee4444>Unable to connect to %s. ",
+                        "<#ee4444>Unable to connect to {0}. ",
                         server.getServerInfo().getName()
                 );
                 Optional<Component> reason = action.getReasonComponent();

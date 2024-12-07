@@ -19,7 +19,7 @@ public class ReplyCommand {
         RedisPlayer target = new RedisPlayer(MessageCommand.lastMessagedPlayer.get(player.getUniqueId()));
         if (!target.isOnline()) {
             Utils.sendError(player,
-                    "%s is not online.",
+                    "{0} is not online.",
                     target.getName()
             );
             return;

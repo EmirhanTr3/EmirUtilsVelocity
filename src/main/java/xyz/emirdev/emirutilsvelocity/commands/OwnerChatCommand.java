@@ -45,11 +45,11 @@ public class OwnerChatCommand {
         LuckPermsUtils.getDisplayName(player).thenAcceptAsync(displayname -> {
             RedisBungeeUtils.broadcastWithPermission(
                     "emirutilsvelocity.ownerchat",
-                    "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>%s<dark_red>] <dark_red>[<red>%s<dark_red>] <red>%s<red>: %s",
+                    "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>{0}<dark_red>] <dark_red>[<red>{1}<dark_red>] <red>{2}<red>: {3}",
                     EmirUtilsVelocity.getRedisBungee().getProxyId(),
                     EmirUtilsVelocity.getRedisBungee().getServerFor(player.getUniqueId()).getName(),
                     displayname,
-                    Utils.sanitize(message)
+                    message
             );
         });
     }
@@ -57,9 +57,9 @@ public class OwnerChatCommand {
     public static void sendOwnerChatMessage(String message) {
         RedisBungeeUtils.broadcastWithPermission(
                 "emirutilsvelocity.ownerchat",
-                "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>%s<dark_red>] <red>Console<red>: %s",
+                "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>{0}<dark_red>] <red>Console<red>: {1}",
                 EmirUtilsVelocity.getRedisBungee().getProxyId(),
-                Utils.sanitize(message)
+                message
         );
     }
 }

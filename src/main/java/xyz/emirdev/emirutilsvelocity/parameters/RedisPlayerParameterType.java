@@ -20,7 +20,7 @@ public final class RedisPlayerParameterType implements ParameterType<VelocityCom
         RedisPlayer player = new RedisPlayer(name);
 
         if (!player.isOnline()) throw new EUVCommandException(
-                "<red>Invalid player:</red> <yellow>%s</yellow>",
+                "<red>Invalid player:</red> <yellow>{0}</yellow>",
                 name
         );
 

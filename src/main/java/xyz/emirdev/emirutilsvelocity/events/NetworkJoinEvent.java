@@ -14,7 +14,7 @@ public class NetworkJoinEvent {
 
         RedisBungeeUtils.broadcastWithPermission(
                 "emirutilsvelocity.notifications.connect",
-                "<#25BB65>→ <#35EE75>[<#25BB65>N<#35EE75>] [<#25BB65>+<#35EE75>] <#20AA50>%s <#35EE75>[<#25BB65>%s<#35EE75>] <#259935>(%s %s)",
+                "<#25BB65>→ <#35EE75>[<#25BB65>N<#35EE75>] [<#25BB65>+<#35EE75>] <#20AA50>{0} <#35EE75>[<#25BB65>{1}<#35EE75>] <#259935>({2} {3})",
                 player.getUsername(),
                 EmirUtilsVelocity.getRedisBungee().getProxyId(),
                 player.getClientBrand(),

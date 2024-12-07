@@ -20,7 +20,7 @@ public class IgnoreCommand {
     public void add(Player player, RedisPlayer target) {
         if (EmirUtilsVelocity.getDatabase().isIgnored(player.getUniqueId(), target.getUniqueId())) {
             Utils.sendError(player,
-                    "You already have %s ignored.",
+                    "You already have {0} ignored.",
                     target.getName()
             );
             return;
@@ -28,7 +28,7 @@ public class IgnoreCommand {
 
         EmirUtilsVelocity.getDatabase().ignorePlayer(player.getUniqueId(), target.getUniqueId());
         Utils.sendMessage(player,
-                "<red>%s can <bold>no longer</bold> message you</red>",
+                "<red>{0} can <bold>no longer</bold> message you</red>",
                 target.getName()
         );
     }
@@ -37,7 +37,7 @@ public class IgnoreCommand {
     public void remove(Player player, RedisPlayer target) {
         if (!EmirUtilsVelocity.getDatabase().isIgnored(player.getUniqueId(), target.getUniqueId())) {
             Utils.sendError(player,
-                    "You do not have %s ignored.",
+                    "You do not have {0} ignored.",
                     target.getName()
             );
             return;
@@ -45,7 +45,7 @@ public class IgnoreCommand {
 
         EmirUtilsVelocity.getDatabase().unIgnorePlayer(player.getUniqueId(), target.getUniqueId());
         Utils.sendMessage(player,
-                "<green>%s can <bold>now</bold> message you</green>",
+                "<green>{0} can <bold>now</bold> message you</green>",
                 target.getName()
         );
     }
@@ -61,13 +61,13 @@ public class IgnoreCommand {
 
         List<String> names = ignoredPlayers.stream().map(uuid -> EmirUtilsVelocity.getRedisBungee().getNameFromUuid(uuid)).toList();
         Utils.sendMessage(player,
-                "<#00eeee><bold>Ignored Players</bold></#00eeee> <#00ccff>(%s)</#00ccff><#00eeee>:</#00eeee>",
+                "<#00eeee><bold>Ignored Players</bold></#00eeee> <#00ccff>({0})</#00ccff><#00eeee>:</#00eeee>",
                 names.size()
         );
 
         for (String name : names) {
             Utils.sendMessage(player,
-                    "  <#00eeee>%s</#00eeee>",
+                    "  <#00eeee>{0}</#00eeee>",
                     name
             );
         }

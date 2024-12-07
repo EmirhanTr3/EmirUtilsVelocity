@@ -12,7 +12,10 @@ public class ServerCommand {
     @CommandPermission("emirutilsvelocity.server")
     public void server(Player player, RegisteredServer server) {
         if (!player.hasPermission("emirutilsvelocity.server." + server.getServerInfo().getName())) {
-            Utils.sendError(player, "You are not allowed to connect to %s!", server.getServerInfo().getName());
+            Utils.sendError(player,
+                    "You are not allowed to connect to {0}!",
+                    server.getServerInfo().getName()
+            );
             return;
         }
 

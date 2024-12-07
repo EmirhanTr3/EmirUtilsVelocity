@@ -17,19 +17,19 @@ public class KickCommand {
         LuckPermsUtils.hasPermission(player.getUniqueId(), "emirutilsvelocity.kick").thenAcceptAsync(hasPerm -> {
             if (hasPerm) {
                 Utils.sendError(sender,
-                        "You cannot kick %s.",
+                        "You cannot kick {0}.",
                         player.getName()
                 );
                 return;
             }
 
             Utils.sendMessage(sender,
-                    "<#00eeee>You have kicked <#00ccff>%s <#00eeee>for <#00ccff>%s",
+                    "<#00eeee>You have kicked <#00ccff>{0} <#00eeee>for <#00ccff>{1}",
                     player.getName(),
-                    Utils.sanitize(reason)
+                    reason
             );
 
-            RedisBungeeUtils.kickPlayer(player.getUniqueId(), Utils.sanitize(reason));
+            RedisBungeeUtils.kickPlayer(player.getUniqueId(), reason);
         });
     }
 }

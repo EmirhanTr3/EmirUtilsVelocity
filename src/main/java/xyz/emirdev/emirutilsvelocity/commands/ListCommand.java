@@ -31,7 +31,7 @@ public class ListCommand {
         }
 
         Utils.sendMessage(sender,
-                "<yellow>There are currently %s players connected to the network.",
+                "<yellow>There are currently {0} players connected to the network.",
                 redisBungee.getPlayerCount()
         );
 
@@ -40,7 +40,7 @@ public class ListCommand {
             List<String> players = entry.getValue();
 
             Utils.sendMessage(sender,
-                    "<dark_aqua>[%s] <gray>(%s)<white>: %s",
+                    "<dark_aqua>[{0}] <gray>({1})<white>: {2}",
                     server,
                     players.size(),
                     String.join(", ", players)

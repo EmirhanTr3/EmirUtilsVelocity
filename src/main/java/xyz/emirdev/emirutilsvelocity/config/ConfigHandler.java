@@ -29,8 +29,8 @@ public class ConfigHandler {
         this.yamlFile.setComment("discord", "The configuration of /discord command.");
         this.yamlFile.setComment("discord.invite", "The discord server invite. Set to \"none\" to disable.");
         this.yamlFile.addDefault("discord.invite", "none");
-        this.yamlFile.setComment("discord.message", "The message to send when /discord is executed. %s will be replaced with the invite url.");
-        this.yamlFile.addDefault("discord.message", "<click:open_url:'%s'><aqua>Join our discord server by clicking</aqua> <dark_aqua><u>here</u></dark_aqua><aqua>.</aqua></click>");
+        this.yamlFile.setComment("discord.message", "The message to send when /discord is executed. {0} will be replaced with the invite url.");
+        this.yamlFile.addDefault("discord.message", "<click:open_url:'{0}'><aqua>Join our discord server by clicking</aqua> <dark_aqua><u>here</u></dark_aqua><aqua>.</aqua></click>");
 
         this.yamlFile.setComment("ipcheck", """
                 IP Check Configuration

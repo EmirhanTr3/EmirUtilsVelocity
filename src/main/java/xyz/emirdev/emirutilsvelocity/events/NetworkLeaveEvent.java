@@ -13,7 +13,7 @@ public class NetworkLeaveEvent {
         
         RedisBungeeUtils.broadcastWithPermission(
                 "emirutilsvelocity.notifications.disconnect",
-                "<#BB4050>← <#DD6070>[<#BB4050>N<#DD6070>] [<#BB4050>-<#DD6070>] <#AA3545>%s",
+                "<#BB4050>← <#DD6070>[<#BB4050>N<#DD6070>] [<#BB4050>-<#DD6070>] <#AA3545>{0}",
                 player.getUsername()
         );
     }

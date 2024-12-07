@@ -28,9 +28,9 @@ public class MessageCommand {
 
     private static void _sendMessage(CommandSource sender, RedisPlayer target, String message) {
         Utils.sendMessage(sender,
-                "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>me <#41BBFF>→ <#2595CC>%s<#41BBFF>: <#60CCFF>%s",
+                "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>me <#41BBFF>→ <#2595CC>{0}<#41BBFF>: <#60CCFF>{1}",
                 target.getName(),
-                Utils.sanitize(message)
+                message
         );
     }
 
@@ -40,7 +40,7 @@ public class MessageCommand {
                 EmirUtilsVelocity.getDatabase().isIgnored(target.getUniqueId(), player.getUniqueId())
         ) {
             Utils.sendError(player,
-                    "You can't send a message to %s.",
+                    "You can't send a message to {0}.",
                     target.getName()
             );
             return;
@@ -49,9 +49,9 @@ public class MessageCommand {
         _sendMessage(player, target, message);
 
         target.sendMessage(
-                "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>%s <#41BBFF>→ <#2595CC>me<#41BBFF>: <#60CCFF>%s",
+                "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>{0} <#41BBFF>→ <#2595CC>me<#41BBFF>: <#60CCFF>{1}",
                 player.getUsername(),
-                Utils.sanitize(message)
+                message
         );
         RedisBungeeUtils.sendSocialSpyMessage(player, target, message);
 
@@ -63,8 +63,8 @@ public class MessageCommand {
         _sendMessage(EmirUtilsVelocity.getProxy().getConsoleCommandSource(), target, message);
 
         target.sendMessage(
-                "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>Console <#41BBFF>→ <#2595CC>me<#41BBFF>: <#60CCFF>%s",
-                Utils.sanitize(message)
+                "<#41BBFF>[<#2595CC>MSG<#41BBFF>] <#2595CC>Console <#41BBFF>→ <#2595CC>me<#41BBFF>: <#60CCFF>{0}",
+                message
         );
     }
 }

@@ -30,23 +30,23 @@ public class CheckIPCommand {
                         (data.getStatus().equals("warning") ?
                                 "<gray>-</gray> <#25BB65>Warning:</#25BB65> <#35EE75>" + data.getMessage() + "\n" : ""
                         ) + """
-                        <gray>-</gray> <#25BB65>IP:</#25BB65> <#35EE75>%s</#35EE75>
-                        <gray>-</gray> <#25BB65>Provider:</#25BB65> <#35EE75>%s</#35EE75>
-                        <gray>-</gray> <#25BB65>Location:</#25BB65> <#35EE75>%s</#35EE75>
-                        <gray>-</gray> <#25BB65>Type:</#25BB65> <#35EE75>%s</#35EE75>
-                        <gray>-</gray> <#25BB65>VPN:</#25BB65> %s
-                        <gray>-</gray> <#25BB65>Proxy:</#25BB65> %s
-                        <gray>-</gray> <#25BB65>Risk Score:</#25BB65> %s""",
+                        <gray>-</gray> <#25BB65>IP:</#25BB65> <#35EE75>{0}</#35EE75>
+                        <gray>-</gray> <#25BB65>Provider:</#25BB65> <#35EE75>{1}</#35EE75>
+                        <gray>-</gray> <#25BB65>Location:</#25BB65> <#35EE75>{2}</#35EE75>
+                        <gray>-</gray> <#25BB65>Type:</#25BB65> <#35EE75>{3}</#35EE75>
+                        <gray>-</gray> <#25BB65>VPN:</#25BB65> {4}
+                        <gray>-</gray> <#25BB65>Proxy:</#25BB65> {5}
+                        <gray>-</gray> <#25BB65>Risk Score:</#25BB65> {6}""",
                         data.getIp(),
                         Objects.requireNonNullElse(data.getProvider(), data.getOrganisation()),
                         data.getLocation(),
                         data.getType(),
                         data.isVPN() ? "<green>Yes</green>" : "<red>No</red>",
                         data.isProxy() ? "<green>Yes</green>" : "<red>No</red>",
-                        String.format(
+                        Utils.stringFormat(
                                 data.getRiskName().equals("Very Risky") || data.getRiskName().equals("Risky") ?
-                                        "<red>%s (%s)</red>" :
-                                        "<green>%s (%s)</green>",
+                                        "<red>{0} ({1})</red>" :
+                                        "<green>{0} ({1})</green>",
                                 data.getRisk(),
                                 data.getRiskName()
                         )
@@ -55,7 +55,7 @@ public class CheckIPCommand {
                 Utils.sendMessage(sender, """
                         <#35EE75><b>IP Address Information</b></#35EE75>
                         <red>✕ There was an API error.</red>
-                        <gray>-</gray> <#25BB65>Error:</#25BB65> <#35EE75>%s</#35EE75>""",
+                        <gray>-</gray> <#25BB65>Error:</#25BB65> <#35EE75>{0}</#35EE75>""",
                         data.getMessage()
                 );
             }

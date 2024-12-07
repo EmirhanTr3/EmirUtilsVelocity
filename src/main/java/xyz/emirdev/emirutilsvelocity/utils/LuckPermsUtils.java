@@ -4,7 +4,6 @@ import com.velocitypowered.api.proxy.Player;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.luckperms.api.model.user.User;
-import net.luckperms.api.model.user.UserManager;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 
 import java.util.Objects;

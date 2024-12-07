@@ -16,7 +16,7 @@ public class SendCommand {
     @Subcommand("all")
     public void send(CommandSource source, RegisteredServer server) {
         Utils.sendMessage(source,
-                "<#00eeee>Connecting all players to server <#00ccff>%s<#00eeee>...",
+                "<#00eeee>Connecting all players to server <#00ccff>{0}<#00eeee>...",
                 server.getServerInfo().getName()
         );
 
@@ -26,7 +26,7 @@ public class SendCommand {
     @Subcommand("player")
     public void send(CommandSource source, RedisPlayer player, RegisteredServer server) {
         Utils.sendMessage(source,
-                "<#00eeee>Connecting <#00ccff>%s<#00eeee> to server <#00ccff>%s<#00eeee>...",
+                "<#00eeee>Connecting <#00ccff>{0}<#00eeee> to server <#00ccff>{1}<#00eeee>...",
                 player.getName(),
                 server.getServerInfo().getName()
         );
@@ -37,7 +37,7 @@ public class SendCommand {
     @Subcommand("server")
     public void send(CommandSource source, RegisteredServer server, RegisteredServer targetServer) {
         Utils.sendMessage(source,
-                "<#00eeee>Connecting all players in server <#00ccff>%s <#00eeee>to server <#00ccff>%s<#00eeee>...",
+                "<#00eeee>Connecting all players in server <#00ccff>{0} <#00eeee>to server <#00ccff>{1}<#00eeee>...",
                 server.getServerInfo().getName(),
                 targetServer.getServerInfo().getName()
         );

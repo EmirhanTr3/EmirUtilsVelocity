@@ -21,7 +21,7 @@ public final class RegisteredServerParameterType implements ParameterType<Veloci
         Optional<RegisteredServer> server = EmirUtilsVelocity.getProxy().getServer(name);
 
         if (server.isEmpty()) throw new EUVCommandException(
-                "<red>Invalid server:</red> <yellow>%s</yellow>",
+                "<red>Invalid server:</red> <yellow>{0}</yellow>",
                 name
         );
 
