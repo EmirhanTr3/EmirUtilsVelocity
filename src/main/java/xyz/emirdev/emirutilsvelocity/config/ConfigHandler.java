@@ -42,6 +42,11 @@ public class ConfigHandler {
         saveFile();
     }
 
+    public void reload() throws IOException {
+        this.yamlFile = new YamlFile(DATA_FILE);
+        this.yamlFile.loadWithComments();
+    }
+
     public void loadFile() {
         this.yamlFile = new YamlFile(DATA_FILE);
         try {

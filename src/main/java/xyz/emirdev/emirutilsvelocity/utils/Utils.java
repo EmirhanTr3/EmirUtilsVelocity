@@ -18,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -34,7 +35,10 @@ public class Utils {
      */
     public static String stringFormat(String string, Object... args) {
         for (int i = 0; i < args.length; i++) {
-            string = string.replaceFirst("\\{"+ i + "}", args[i].toString());
+            string = string.replaceFirst(
+                    "\\{"+ i + "}",
+                    Objects.requireNonNullElse(args[i], "null").toString()
+            );
         }
         return string;
     }
@@ -89,6 +93,10 @@ public class Utils {
             if (!action.isSuccessful()) {
                 if (action.getStatus() == ConnectionRequestBuilder.Status.ALREADY_CONNECTED) {
                     Utils.sendError(player, "You are already connected to this server.");
+                    return;
+
+                } else if (action.getStatus() == ConnectionRequestBuilder.Status.CONNECTION_IN_PROGRESS) {
+                    Utils.sendError(player, "You are already connecting to this server.");
                     return;
                 }
 

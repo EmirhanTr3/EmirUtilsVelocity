@@ -109,6 +109,7 @@ public class EmirUtilsVelocity {
                 .build();
 
         List.of(
+                new MainCommand(),
                 new StaffChatCommand(),
                 new OwnerChatCommand(),
                 new FindCommand(),
