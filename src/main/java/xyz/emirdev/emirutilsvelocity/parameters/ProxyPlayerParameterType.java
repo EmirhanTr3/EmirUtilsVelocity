@@ -1,6 +1,7 @@
 package xyz.emirdev.emirutilsvelocity.parameters;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.velocitypowered.api.proxy.Player;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.node.ExecutionContext;
@@ -9,15 +10,15 @@ import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
 import xyz.emirdev.emirutilsvelocity.EUVCommandException;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyPlayer;
 
-public final class RedisPlayerParameterType implements ParameterType<VelocityCommandActor, RedisPlayer> {
+public final class ProxyPlayerParameterType implements ParameterType<VelocityCommandActor, ProxyPlayer> {
 
     @Override
-    public RedisPlayer parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<@NotNull VelocityCommandActor> context) {
+    public ProxyPlayer parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<@NotNull VelocityCommandActor> context) {
         String name = input.readString();
 
-        RedisPlayer player = new RedisPlayer(name);
+        ProxyPlayer player = new ProxyPlayer(name);
 
         if (!player.isOnline()) throw new EUVCommandException(
                 "<red>Invalid player:</red> <yellow>{0}</yellow>",
@@ -29,8 +30,14 @@ public final class RedisPlayerParameterType implements ParameterType<VelocityCom
 
     @Override
     public @NotNull SuggestionProvider<@NotNull VelocityCommandActor> defaultSuggestions() {
-        RedisBungeeAPI redisBungee = EmirUtilsVelocity.getRedisBungee();
-        return (context) -> redisBungee.getPlayersOnline().stream().map(redisBungee::getNameFromUuid).toList();
+        return (context) -> {
+            if (EmirUtilsVelocity.hasRedisBungee()) {
+                RedisBungeeAPI redisBungee = RedisBungeeAPI.getRedisBungeeApi();
+                return redisBungee.getPlayersOnline().stream().map(redisBungee::getNameFromUuid).toList();
+            } else {
+                return EmirUtilsVelocity.getProxy().getAllPlayers().stream().map(Player::getUsername).toList();
+            }
+        };
     }
 
     @Override

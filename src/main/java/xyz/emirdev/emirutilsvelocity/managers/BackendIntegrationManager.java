@@ -14,7 +14,6 @@ import java.time.Duration;
 import java.util.*;
 
 public class BackendIntegrationManager {
-    private static final RedisBungeeAPI redisBungee = EmirUtilsVelocity.getRedisBungee();
     private final Map<UUID, RegisteredServer> lastServer = new HashMap<>();
 
     public BackendIntegrationManager() {
@@ -77,7 +76,9 @@ public class BackendIntegrationManager {
     public void updateServerPlayerCount(RegisteredServer server) {
         updateServerPlayerCount(
                 server,
-                redisBungee.getPlayersOnServer(server.getServerInfo().getName()).size()
+                EmirUtilsVelocity.hasRedisBungee() ?
+                        RedisBungeeAPI.getRedisBungeeApi().getPlayersOnServer(server.getServerInfo().getName()).size() :
+                        EmirUtilsVelocity.getProxy().getPlayerCount()
         );
     }
 

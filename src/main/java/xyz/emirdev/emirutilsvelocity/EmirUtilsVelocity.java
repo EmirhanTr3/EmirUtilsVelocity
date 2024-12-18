@@ -10,6 +10,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.velocity.VelocityLamp;
@@ -25,9 +26,11 @@ import xyz.emirdev.emirutilsvelocity.events.ChangeServerEvent;
 import xyz.emirdev.emirutilsvelocity.managers.BackendIntegrationManager;
 import xyz.emirdev.emirutilsvelocity.parameters.InetSocketAddressParameterType;
 import xyz.emirdev.emirutilsvelocity.parameters.RegisteredServerParameterType;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
-import xyz.emirdev.emirutilsvelocity.parameters.RedisPlayerParameterType;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.RedisBungeeUtils;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyPlayer;
+import xyz.emirdev.emirutilsvelocity.parameters.ProxyPlayerParameterType;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyUtils;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.VelocityUtils;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -41,17 +44,17 @@ import static revxrsal.commands.velocity.VelocityVisitors.brigadier;
         authors = {"EmirhanTr3"},
         dependencies = {
                 @Dependency(id = "luckperms"),
-                @Dependency(id = "redisbungee")
+                @Dependency(id = "redisbungee", optional = true)
         }
 )
 public class EmirUtilsVelocity {
     private static EmirUtilsVelocity instance;
     private static ProxyServer proxy;
-    private static RedisBungeeAPI redisBungee;
     private static ConfigHandler config;
     private static Database database;
     private static LuckPerms luckPerms;
     private static BackendIntegrationManager backendIntegrationManager;
+    private static ProxyUtils proxyUtils;
 
     @Inject
     private Logger logger;
@@ -68,8 +71,8 @@ public class EmirUtilsVelocity {
         return proxy;
     }
 
-    public static RedisBungeeAPI getRedisBungee() {
-        return redisBungee;
+    public static boolean hasRedisBungee() {
+        return proxy.getPluginManager().isLoaded("redisbungee");
     }
 
     public static ConfigHandler getConfig() {
@@ -84,6 +87,10 @@ public class EmirUtilsVelocity {
         return luckPerms;
     }
 
+    public static ProxyUtils getProxyUtils() {
+        return proxyUtils;
+    }
+
     @Inject
     public EmirUtilsVelocity(ProxyServer proxy) {
         instance = this;
@@ -92,17 +99,25 @@ public class EmirUtilsVelocity {
 
     @Subscribe
     public void ProxyInitializeEvent(ProxyInitializeEvent event) {
-        redisBungee = RedisBungeeAPI.getRedisBungeeApi();
         config = new ConfigHandler();
         database = new Database();
         luckPerms = LuckPermsProvider.get();
         backendIntegrationManager = new BackendIntegrationManager();
 
+        if (proxy.getPluginManager().isLoaded("redisbungee")) {
+            logger.info("Found redisbungee. Using redisbungee api.");
+
+            proxyUtils = new RedisBungeeUtils();
+            proxy.getEventManager().register(this, proxyUtils);
+        } else {
+            proxyUtils = new VelocityUtils();
+        }
+
         VelocityLampConfig<VelocityCommandActor> lampConfig = VelocityLampConfig
                 .createDefault(this, proxy);
         Lamp<VelocityCommandActor> lamp = VelocityLamp.builder(lampConfig)
                 .parameterTypes(builder -> {
-                    builder.addParameterType(RedisPlayer.class, new RedisPlayerParameterType());
+                    builder.addParameterType(ProxyPlayer.class, new ProxyPlayerParameterType());
                     builder.addParameterType(RegisteredServer.class, new RegisteredServerParameterType());
                     builder.addParameterType(InetSocketAddress.class, new InetSocketAddressParameterType());
                 })
@@ -130,7 +145,6 @@ public class EmirUtilsVelocity {
         lamp.accept(brigadier(lampConfig));
 
         List.of(
-                new RedisBungeeUtils(),
                 backendIntegrationManager,
                 new ChatEvent(),
                 new NetworkJoinEvent(),

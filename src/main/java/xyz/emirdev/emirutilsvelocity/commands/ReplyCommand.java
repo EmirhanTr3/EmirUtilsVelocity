@@ -3,7 +3,7 @@ package xyz.emirdev.emirutilsvelocity.commands;
 import com.velocitypowered.api.proxy.Player;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.velocity.annotation.CommandPermission;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyPlayer;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 public class ReplyCommand {
@@ -16,7 +16,7 @@ public class ReplyCommand {
             return;
         }
 
-        RedisPlayer target = new RedisPlayer(MessageCommand.lastMessagedPlayer.get(player.getUniqueId()));
+        ProxyPlayer target = new ProxyPlayer(MessageCommand.lastMessagedPlayer.get(player.getUniqueId()));
         if (!target.isOnline()) {
             Utils.sendError(player,
                     "{0} is not online.",

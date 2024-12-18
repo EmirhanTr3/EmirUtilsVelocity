@@ -5,8 +5,8 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.velocity.annotation.CommandPermission;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
+import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyPlayer;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 @Command("send")
@@ -20,18 +20,18 @@ public class SendCommand {
                 server.getServerInfo().getName()
         );
 
-        RedisBungeeUtils.connectAllPlayers(server.getServerInfo().getName());
+        EmirUtilsVelocity.getProxyUtils().connectAllPlayers(server.getServerInfo().getName());
     }
 
     @Subcommand("player")
-    public void send(CommandSource source, RedisPlayer player, RegisteredServer server) {
+    public void send(CommandSource source, ProxyPlayer player, RegisteredServer server) {
         Utils.sendMessage(source,
                 "<#00eeee>Connecting <#00ccff>{0}<#00eeee> to server <#00ccff>{1}<#00eeee>...",
                 player.getName(),
                 server.getServerInfo().getName()
         );
 
-        RedisBungeeUtils.connectPlayer(player.getUniqueId(), server.getServerInfo().getName());
+        EmirUtilsVelocity.getProxyUtils().connectPlayer(player.getUniqueId(), server.getServerInfo().getName());
     }
 
     @Subcommand("server")
@@ -42,7 +42,7 @@ public class SendCommand {
                 targetServer.getServerInfo().getName()
         );
 
-        RedisBungeeUtils.connectAllPlayersInServer(
+        EmirUtilsVelocity.getProxyUtils().connectAllPlayersInServer(
                 server.getServerInfo().getName(),
                 targetServer.getServerInfo().getName()
         );

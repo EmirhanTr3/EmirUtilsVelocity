@@ -1,12 +1,12 @@
 package xyz.emirdev.emirutilsvelocity.commands;
 
+import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.proxy.Player;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
-import xyz.emirdev.emirutilsvelocity.database.Database;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisPlayer;
+import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyPlayer;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.UUID;
 public class IgnoreCommand {
 
     @Subcommand("add")
-    public void add(Player player, RedisPlayer target) {
+    public void add(Player player, ProxyPlayer target) {
         if (EmirUtilsVelocity.getDatabase().isIgnored(player.getUniqueId(), target.getUniqueId())) {
             Utils.sendError(player,
                     "You already have {0} ignored.",
@@ -34,7 +34,7 @@ public class IgnoreCommand {
     }
 
     @Subcommand("remove")
-    public void remove(Player player, RedisPlayer target) {
+    public void remove(Player player, ProxyPlayer target) {
         if (!EmirUtilsVelocity.getDatabase().isIgnored(player.getUniqueId(), target.getUniqueId())) {
             Utils.sendError(player,
                     "You do not have {0} ignored.",
@@ -59,7 +59,13 @@ public class IgnoreCommand {
             return;
         }
 
-        List<String> names = ignoredPlayers.stream().map(uuid -> EmirUtilsVelocity.getRedisBungee().getNameFromUuid(uuid)).toList();
+        List<String> names = ignoredPlayers.stream().map(uuid ->
+                EmirUtilsVelocity.hasRedisBungee() ?
+                        RedisBungeeAPI.getRedisBungeeApi().getNameFromUuid(uuid) :
+                        //TODO: SOMEHOW MAKE THIS SHOW PLAYER NAME INSTEAD OF UUID IDFK HOW BUT DO IT
+                        uuid.toString()
+        ).toList();
+
         Utils.sendMessage(player,
                 "<#00eeee><bold>Ignored Players</bold></#00eeee> <#00ccff>({0})</#00ccff><#00eeee>:</#00eeee>",
                 names.size()

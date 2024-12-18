@@ -1,6 +1,7 @@
 package xyz.emirdev.emirutilsvelocity.parameters;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.velocitypowered.api.proxy.Player;
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.node.ExecutionContext;
@@ -30,8 +31,14 @@ public final class InetSocketAddressParameterType implements ParameterType<Veloc
 
     @Override
     public @NotNull SuggestionProvider<@NotNull VelocityCommandActor> defaultSuggestions() {
-        RedisBungeeAPI redisBungee = EmirUtilsVelocity.getRedisBungee();
-        return (context) -> redisBungee.getPlayersOnline().stream().map(uuid -> redisBungee.getPlayerIp(uuid).getHostAddress()).toList();
+        return (context) -> {
+            if (EmirUtilsVelocity.hasRedisBungee()) {
+                RedisBungeeAPI redisBungee = RedisBungeeAPI.getRedisBungeeApi();
+                return redisBungee.getPlayersOnline().stream().map(uuid -> redisBungee.getPlayerIp(uuid).getHostAddress()).toList();
+            } else {
+                return EmirUtilsVelocity.getProxy().getAllPlayers().stream().map(player -> player.getRemoteAddress().getHostName()).toList();
+            }
+        };
     }
 
     @Override

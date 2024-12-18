@@ -1,5 +1,6 @@
 package xyz.emirdev.emirutilsvelocity.commands;
 
+import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import revxrsal.commands.annotation.Command;
@@ -7,7 +8,6 @@ import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.utils.LuckPermsUtils;
-import xyz.emirdev.emirutilsvelocity.redisbungee.RedisBungeeUtils;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 import java.util.ArrayList;
@@ -43,11 +43,15 @@ public class StaffChatCommand {
 
     public static void sendStaffChatMessage(Player player, String message) {
         LuckPermsUtils.getDisplayName(player).thenAcceptAsync(displayname -> {
-            RedisBungeeUtils.broadcastWithPermission(
+            EmirUtilsVelocity.getProxyUtils().broadcastWithPermission(
                     "emirutilsvelocity.staffchat",
-                    "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <dark_aqua>[<aqua>{1}<dark_aqua>] <aqua>{2}<aqua>: {3}",
-                    EmirUtilsVelocity.getRedisBungee().getProxyId(),
-                    EmirUtilsVelocity.getRedisBungee().getServerFor(player.getUniqueId()).getName(),
+                    EmirUtilsVelocity.hasRedisBungee() ?
+                            "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <dark_aqua>[<aqua>{1}<dark_aqua>] <aqua>{2}<aqua>: {3}" :
+                            "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{1}<dark_aqua>] <aqua>{2}<aqua>: {3}",
+                    EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : null,
+                    EmirUtilsVelocity.hasRedisBungee() ?
+                            RedisBungeeAPI.getRedisBungeeApi().getServerFor(player.getUniqueId()).getName() :
+                            player.getCurrentServer().get().getServerInfo().getName(),
                     displayname,
                     message
             );
@@ -55,10 +59,12 @@ public class StaffChatCommand {
     }
 
     public static void sendStaffChatMessage(String message) {
-        RedisBungeeUtils.broadcastWithPermission(
+        EmirUtilsVelocity.getProxyUtils().broadcastWithPermission(
                 "emirutilsvelocity.staffchat",
-                "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <aqua>Console<aqua>: {1}",
-                EmirUtilsVelocity.getRedisBungee().getProxyId(),
+                EmirUtilsVelocity.hasRedisBungee() ?
+                        "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <aqua>Console<aqua>: {1}" :
+                        "<dark_aqua>[<aqua>SC<dark_aqua>] <aqua>Console<aqua>: {1}",
+                EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : null,
                 message
         );
     }

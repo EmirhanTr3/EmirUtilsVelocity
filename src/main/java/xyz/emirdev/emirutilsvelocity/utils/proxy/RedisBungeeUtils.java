@@ -1,7 +1,8 @@
-package xyz.emirdev.emirutilsvelocity.redisbungee;
+package xyz.emirdev.emirutilsvelocity.utils.proxy;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.imaginarycode.minecraft.redisbungee.events.PubSubMessageEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.proxy.Player;
@@ -15,67 +16,69 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-public class RedisBungeeUtils {
-    public static void broadcastWithPermission(String perm, String message, Object... args) {
+public class RedisBungeeUtils implements ProxyUtils {
+    private final RedisBungeeAPI redisBungee = RedisBungeeAPI.getRedisBungeeApi();
+
+    public void broadcastWithPermission(String perm, String message, Object... args) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
         map.put("perm", perm);
         map.put("message", Utils.stringFormat(message, args));
 
         String json = gson.toJson(map);
-        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:broadcastWithPermission", json);
+        redisBungee.sendChannelMessage("emirutilsvelocity:broadcastWithPermission", json);
     }
 
-    public static void sendMessage(UUID uuid, String message, Object... args) {
+    public void sendMessage(UUID uuid, String message, Object... args) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
         map.put("uuid", uuid.toString());
         map.put("message", Utils.stringFormat(message, args));
 
         String json = gson.toJson(map);
-        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:message", json);
+        redisBungee.sendChannelMessage("emirutilsvelocity:message", json);
     }
 
-    public static void connectAllPlayers(String server) {
+    public void connectAllPlayers(String server) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
         map.put("server", server);
 
         String json = gson.toJson(map);
-        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:connectAllPlayers", json);
+        redisBungee.sendChannelMessage("emirutilsvelocity:connectAllPlayers", json);
     }
 
-    public static void connectPlayer(UUID uuid, String server) {
+    public void connectPlayer(UUID uuid, String server) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
         map.put("uuid", uuid.toString());
         map.put("server", server);
 
         String json = gson.toJson(map);
-        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:connectPlayer", json);
+        redisBungee.sendChannelMessage("emirutilsvelocity:connectPlayer", json);
     }
 
-    public static void connectAllPlayersInServer(String server, String targetServer) {
+    public void connectAllPlayersInServer(String server, String targetServer) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
         map.put("server", server);
         map.put("targetServer", targetServer);
 
         String json = gson.toJson(map);
-        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:connectAllPlayersInServer", json);
+        redisBungee.sendChannelMessage("emirutilsvelocity:connectAllPlayersInServer", json);
     }
 
-    public static void kickPlayer(UUID uuid, String reason, Object... args) {
+    public void kickPlayer(UUID uuid, String reason, Object... args) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
         map.put("uuid", uuid.toString());
         map.put("reason", Utils.stringFormat(reason, args));
 
         String json = gson.toJson(map);
-        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:kick", json);
+        redisBungee.sendChannelMessage("emirutilsvelocity:kick", json);
     }
 
-    public static void sendSocialSpyMessage(Player player, RedisPlayer target, String message) {
+    public void sendSocialSpyMessage(Player player, ProxyPlayer target, String message) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
         map.put("player", player.getUniqueId().toString());
@@ -88,7 +91,7 @@ public class RedisBungeeUtils {
         ));
 
         String json = gson.toJson(map);
-        EmirUtilsVelocity.getRedisBungee().sendChannelMessage("emirutilsvelocity:socialSpyMessage", json);
+        redisBungee.sendChannelMessage("emirutilsvelocity:socialSpyMessage", json);
     }
 
     @Subscribe
@@ -102,8 +105,8 @@ public class RedisBungeeUtils {
                 case "broadcastWithPermission" -> Utils.broadcastWithPermission(map.get("perm"), map.get("message"));
 
                 case "message" -> {
-                    Optional<Player> player = EmirUtilsVelocity.getProxy().getPlayer(UUID.fromString(map.get("uuid")));
-                    player.ifPresent(value -> Utils.sendMessage(value, map.get("message")));
+                    Optional<Player> optionalPlayer = EmirUtilsVelocity.getProxy().getPlayer(UUID.fromString(map.get("uuid")));
+                    optionalPlayer.ifPresent(player -> Utils.sendMessage(player, map.get("message")));
                 }
 
                 case "connectAllPlayers" -> {
