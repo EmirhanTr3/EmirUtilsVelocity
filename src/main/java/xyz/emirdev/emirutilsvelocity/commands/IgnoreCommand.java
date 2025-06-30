@@ -2,6 +2,8 @@ package xyz.emirdev.emirutilsvelocity.commands;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.proxy.Player;
+
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.velocity.annotation.CommandPermission;
@@ -20,34 +22,30 @@ public class IgnoreCommand {
     public void add(Player player, ProxyPlayer target) {
         if (EmirUtilsVelocity.getDatabase().isIgnored(player.getUniqueId(), target.getUniqueId())) {
             Utils.sendError(player,
-                    "You already have {0} ignored.",
-                    target.getName()
-            );
+                    "You already have <target> ignored.",
+                    Placeholder.unparsed("target", target.getName()));
             return;
         }
 
         EmirUtilsVelocity.getDatabase().ignorePlayer(player.getUniqueId(), target.getUniqueId());
         Utils.sendMessage(player,
-                "<red>{0} can <bold>no longer</bold> message you</red>",
-                target.getName()
-        );
+                "<red><target> can <bold>no longer</bold> message you</red>",
+                Placeholder.unparsed("target", target.getName()));
     }
 
     @Subcommand("remove")
     public void remove(Player player, ProxyPlayer target) {
         if (!EmirUtilsVelocity.getDatabase().isIgnored(player.getUniqueId(), target.getUniqueId())) {
             Utils.sendError(player,
-                    "You do not have {0} ignored.",
-                    target.getName()
-            );
+                    "You do not have <target> ignored.",
+                    Placeholder.unparsed("target", target.getName()));
             return;
         }
 
         EmirUtilsVelocity.getDatabase().unIgnorePlayer(player.getUniqueId(), target.getUniqueId());
         Utils.sendMessage(player,
-                "<green>{0} can <bold>now</bold> message you</green>",
-                target.getName()
-        );
+                "<green><target> can <bold>now</bold> message you</green>",
+                Placeholder.unparsed("target", target.getName()));
     }
 
     @Subcommand("list")
@@ -59,23 +57,20 @@ public class IgnoreCommand {
             return;
         }
 
-        List<String> names = ignoredPlayers.stream().map(uuid ->
-                EmirUtilsVelocity.hasRedisBungee() ?
-                        RedisBungeeAPI.getRedisBungeeApi().getNameFromUuid(uuid) :
-                        //TODO: SOMEHOW MAKE THIS SHOW PLAYER NAME INSTEAD OF UUID IDFK HOW BUT DO IT
-                        uuid.toString()
-        ).toList();
+        List<String> names = ignoredPlayers.stream().map(
+                uuid -> EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getNameFromUuid(uuid) :
+                // TODO: SOMEHOW MAKE THIS SHOW PLAYER NAME INSTEAD OF UUID IDFK HOW BUT DO IT
+                        uuid.toString())
+                .toList();
 
         Utils.sendMessage(player,
-                "<#00eeee><bold>Ignored Players</bold></#00eeee> <#00ccff>({0})</#00ccff><#00eeee>:</#00eeee>",
-                names.size()
-        );
+                "<#00eeee><bold>Ignored Players</bold></#00eeee> <#00ccff>(<size>)</#00ccff><#00eeee>:</#00eeee>",
+                Placeholder.unparsed("size", String.valueOf(names.size())));
 
         for (String name : names) {
             Utils.sendMessage(player,
-                    "  <#00eeee>{0}</#00eeee>",
-                    name
-            );
+                    "  <#00eeee><name></#00eeee>",
+                    Placeholder.unparsed("name", name));
         }
     }
 }

@@ -2,6 +2,8 @@ package xyz.emirdev.emirutilsvelocity.commands;
 
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.velocity.annotation.CommandPermission;
@@ -16,9 +18,8 @@ public class SendCommand {
     @Subcommand("all")
     public void send(CommandSource source, RegisteredServer server) {
         Utils.sendMessage(source,
-                "<#00eeee>Connecting all players to server <#00ccff>{0}<#00eeee>...",
-                server.getServerInfo().getName()
-        );
+                "<#00eeee>Connecting all players to server <#00ccff><server><#00eeee>...",
+                Placeholder.unparsed("server", server.getServerInfo().getName()));
 
         EmirUtilsVelocity.getProxyUtils().connectAllPlayers(server.getServerInfo().getName());
     }
@@ -26,10 +27,9 @@ public class SendCommand {
     @Subcommand("player")
     public void send(CommandSource source, ProxyPlayer player, RegisteredServer server) {
         Utils.sendMessage(source,
-                "<#00eeee>Connecting <#00ccff>{0}<#00eeee> to server <#00ccff>{1}<#00eeee>...",
-                player.getName(),
-                server.getServerInfo().getName()
-        );
+                "<#00eeee>Connecting <#00ccff><player><#00eeee> to server <#00ccff><server><#00eeee>...",
+                Placeholder.unparsed("player", player.getName()),
+                Placeholder.unparsed("server", server.getServerInfo().getName()));
 
         EmirUtilsVelocity.getProxyUtils().connectPlayer(player.getUniqueId(), server.getServerInfo().getName());
     }
@@ -37,14 +37,12 @@ public class SendCommand {
     @Subcommand("server")
     public void send(CommandSource source, RegisteredServer server, RegisteredServer targetServer) {
         Utils.sendMessage(source,
-                "<#00eeee>Connecting all players in server <#00ccff>{0} <#00eeee>to server <#00ccff>{1}<#00eeee>...",
-                server.getServerInfo().getName(),
-                targetServer.getServerInfo().getName()
-        );
+                "<#00eeee>Connecting all players in server <#00ccff><server> <#00eeee>to server <#00ccff><targetserver><#00eeee>...",
+                Placeholder.unparsed("server", server.getServerInfo().getName()),
+                Placeholder.unparsed("targetserver", targetServer.getServerInfo().getName()));
 
         EmirUtilsVelocity.getProxyUtils().connectAllPlayersInServer(
                 server.getServerInfo().getName(),
-                targetServer.getServerInfo().getName()
-        );
+                targetServer.getServerInfo().getName());
     }
 }

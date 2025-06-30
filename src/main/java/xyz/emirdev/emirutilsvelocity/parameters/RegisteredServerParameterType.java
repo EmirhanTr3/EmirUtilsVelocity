@@ -1,6 +1,9 @@
 package xyz.emirdev.emirutilsvelocity.parameters;
 
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.node.ExecutionContext;
@@ -15,22 +18,24 @@ import java.util.Optional;
 public final class RegisteredServerParameterType implements ParameterType<VelocityCommandActor, RegisteredServer> {
 
     @Override
-    public RegisteredServer parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<@NotNull VelocityCommandActor> context) {
+    public RegisteredServer parse(@NotNull MutableStringStream input,
+            @NotNull ExecutionContext<@NotNull VelocityCommandActor> context) {
         String name = input.readString();
 
         Optional<RegisteredServer> server = EmirUtilsVelocity.getProxy().getServer(name);
 
-        if (server.isEmpty()) throw new EUVCommandException(
-                "<red>Invalid server:</red> <yellow>{0}</yellow>",
-                name
-        );
+        if (server.isEmpty())
+            throw new EUVCommandException(
+                    "<red>Invalid server:</red> <yellow><name></yellow>",
+                    Placeholder.unparsed("name", name));
 
         return server.get();
     }
 
     @Override
     public @NotNull SuggestionProvider<@NotNull VelocityCommandActor> defaultSuggestions() {
-        return (context) -> EmirUtilsVelocity.getProxy().getAllServers().stream().map(server -> server.getServerInfo().getName()).toList();
+        return (context) -> EmirUtilsVelocity.getProxy().getAllServers().stream()
+                .map(server -> server.getServerInfo().getName()).toList();
     }
 
     @Override

@@ -29,14 +29,17 @@ public class ConfigHandler {
         this.yamlFile.setComment("discord", "The configuration of /discord command.");
         this.yamlFile.setComment("discord.invite", "The discord server invite. Set to \"none\" to disable.");
         this.yamlFile.addDefault("discord.invite", "none");
-        this.yamlFile.setComment("discord.message", "The message to send when /discord is executed. {0} will be replaced with the invite url.");
-        this.yamlFile.addDefault("discord.message", "<click:open_url:'{0}'><aqua>Join our discord server by clicking</aqua> <dark_aqua><u>here</u></dark_aqua><aqua>.</aqua></click>");
+        this.yamlFile.setComment("discord.message",
+                "The message to send when /discord is executed. <invite> will be replaced with the invite url.");
+        this.yamlFile.addDefault("discord.message",
+                "<click:open_url:'<invite>'><aqua>Join our discord server by clicking</aqua> <dark_aqua><u>here</u></dark_aqua><aqua>.</aqua></click>");
 
         this.yamlFile.setComment("ipcheck", """
                 IP Check Configuration
                 - We are using the proxycheck.io API for checking IP data.
                 - The API is usable with its guest mode, but it's only limited to 100 requests per day.
                 - By making a free account, you instead get 1000 free requests per day, and if you pay - even more!""");
+        this.yamlFile.addDefault("ipcheck.enabled", true);
         this.yamlFile.addDefault("ipcheck.key", "none");
 
         saveFile();
@@ -70,20 +73,21 @@ public class ConfigHandler {
                 this.yamlFile.getInt("database.port"),
                 this.yamlFile.getString("database.username"),
                 this.yamlFile.getString("database.password"),
-                this.yamlFile.getString("database.name")
-        );
+                this.yamlFile.getString("database.name"));
     }
 
     public RegisteredServer getHubServer() {
         String hub = this.yamlFile.getString("hub");
-        if (hub.equals("none")) return null;
+        if (hub.equals("none"))
+            return null;
         Optional<RegisteredServer> server = EmirUtilsVelocity.getProxy().getServer(hub);
         return server.orElse(null);
     }
 
     public String getDiscordInvite() {
         String discord = this.yamlFile.getString("discord.invite");
-        if (discord.equals("none")) return null;
+        if (discord.equals("none"))
+            return null;
         return discord;
     }
 
@@ -93,7 +97,12 @@ public class ConfigHandler {
 
     public String getIPCheckKey() {
         String key = this.yamlFile.getString("ipcheck.key");
-        if (key.equals("none")) return null;
+        if (key.equals("none"))
+            return null;
         return key;
+    }
+
+    public boolean isIPCheckEnabled() {
+        return this.yamlFile.getBoolean("ipcheck.enabled");
     }
 }

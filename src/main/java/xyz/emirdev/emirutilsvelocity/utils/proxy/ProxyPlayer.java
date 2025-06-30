@@ -4,6 +4,8 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
+
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 
 import java.util.Optional;
@@ -26,9 +28,8 @@ public class ProxyPlayer {
             this.uuid = redisBungee.getUuidFromName(name, false);
 
             if (uuid != null) {
-                this.name = optionalPlayer.isPresent() ?
-                        optionalPlayer.get().getUsername() :
-                        redisBungee.getNameFromUuid(uuid, false);
+                this.name = optionalPlayer.isPresent() ? optionalPlayer.get().getUsername()
+                        : redisBungee.getNameFromUuid(uuid, false);
             } else {
                 this.name = null;
             }
@@ -56,9 +57,8 @@ public class ProxyPlayer {
             this.player = null;
 
             if (uuid != null) {
-                this.name = optionalPlayer.isPresent() ?
-                        optionalPlayer.get().getUsername() :
-                        redisBungee.getNameFromUuid(uuid, false);
+                this.name = optionalPlayer.isPresent() ? optionalPlayer.get().getUsername()
+                        : redisBungee.getNameFromUuid(uuid, false);
             } else {
                 this.name = null;
             }
@@ -83,28 +83,22 @@ public class ProxyPlayer {
     }
 
     public boolean isOnline() {
-        if (uuid == null) return false;
-        return (EmirUtilsVelocity.hasRedisBungee() ?
-                RedisBungeeAPI.getRedisBungeeApi().isPlayerOnline(uuid) :
-                player.isActive()
-        );
+        if (uuid == null)
+            return false;
+        return (EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().isPlayerOnline(uuid)
+                : player.isActive());
     }
 
     public ServerInfo getServer() {
-        return (EmirUtilsVelocity.hasRedisBungee() ?
-                RedisBungeeAPI.getRedisBungeeApi().getServerFor(uuid) :
-                player.getCurrentServer().get().getServerInfo()
-        );
+        return (EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getServerFor(uuid)
+                : player.getCurrentServer().get().getServerInfo());
     }
 
     public String getProxy() {
-        return (EmirUtilsVelocity.hasRedisBungee() ?
-                RedisBungeeAPI.getRedisBungeeApi().getProxy(uuid) :
-                null
-        );
+        return (EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxy(uuid) : null);
     }
 
-    public void sendMessage(String string, Object... args) {
-        EmirUtilsVelocity.getProxyUtils().sendMessage(uuid, string, args);
+    public void sendMessage(String string, TagResolver... resolvers) {
+        EmirUtilsVelocity.getProxyUtils().sendMessage(uuid, string, resolvers);
     }
 }

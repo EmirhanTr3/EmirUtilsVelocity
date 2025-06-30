@@ -1,7 +1,9 @@
 package xyz.emirdev.emirutilsvelocity.parameters;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
-import com.velocitypowered.api.proxy.Player;
+
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+
 import org.jetbrains.annotations.NotNull;
 import revxrsal.commands.autocomplete.SuggestionProvider;
 import revxrsal.commands.node.ExecutionContext;
@@ -16,17 +18,18 @@ import java.net.InetSocketAddress;
 public final class InetSocketAddressParameterType implements ParameterType<VelocityCommandActor, InetSocketAddress> {
 
     @Override
-    public InetSocketAddress parse(@NotNull MutableStringStream input, @NotNull ExecutionContext<@NotNull VelocityCommandActor> context) {
-        String name = input.readString();
+    public InetSocketAddress parse(@NotNull MutableStringStream input,
+            @NotNull ExecutionContext<@NotNull VelocityCommandActor> context) {
+        String ip = input.readString();
 
-        if (!name.matches("(\\b25[0-5]|\\b2[0-4][0-9]|\\b[01]?[0-9][0-9]?)(.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")) {
+        if (!ip.matches(
+                "(\\b25[0-5]|\\b2[0-4][0-9]|\\b[01]?[0-9][0-9]?)(.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")) {
             throw new EUVCommandException(
-                    "<red>Invalid IP address:</red> <yellow>{0}</yellow>",
-                    name
-            );
+                    "<red>Invalid IP address:</red> <yellow><ip></yellow>",
+                    Placeholder.unparsed("ip", ip));
         }
 
-        return new InetSocketAddress(name, 0);
+        return new InetSocketAddress(ip, 0);
     }
 
     @Override
@@ -34,9 +37,11 @@ public final class InetSocketAddressParameterType implements ParameterType<Veloc
         return (context) -> {
             if (EmirUtilsVelocity.hasRedisBungee()) {
                 RedisBungeeAPI redisBungee = RedisBungeeAPI.getRedisBungeeApi();
-                return redisBungee.getPlayersOnline().stream().map(uuid -> redisBungee.getPlayerIp(uuid).getHostAddress()).toList();
+                return redisBungee.getPlayersOnline().stream()
+                        .map(uuid -> redisBungee.getPlayerIp(uuid).getHostAddress()).toList();
             } else {
-                return EmirUtilsVelocity.getProxy().getAllPlayers().stream().map(player -> player.getRemoteAddress().getHostName()).toList();
+                return EmirUtilsVelocity.getProxy().getAllPlayers().stream()
+                        .map(player -> player.getRemoteAddress().getHostName()).toList();
             }
         };
     }

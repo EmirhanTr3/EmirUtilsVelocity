@@ -1,6 +1,8 @@
 package xyz.emirdev.emirutilsvelocity.commands;
 
 import com.velocitypowered.api.command.CommandSource;
+
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Subcommand;
 import revxrsal.commands.velocity.annotation.CommandPermission;
@@ -20,6 +22,7 @@ public class MainCommand {
 
         try {
             EmirUtilsVelocity.getConfig().reload();
+            EmirUtilsVelocity.loadCommands();
         } catch (IOException e) {
             e.printStackTrace();
             Utils.sendError(sender, "There was an error reloading configuration. Check console for more information.");
@@ -27,8 +30,7 @@ public class MainCommand {
         }
 
         Utils.sendMessage(sender,
-                "<#00eeee>Reloaded configuration in <#00ccff>{0}<#00eeee>ms.",
-                System.currentTimeMillis() - time
-        );
+                "<#00eeee>Reloaded configuration in <#00ccff><time><#00eeee>ms.",
+                Placeholder.unparsed("time", String.valueOf(System.currentTimeMillis() - time)));
     }
 }

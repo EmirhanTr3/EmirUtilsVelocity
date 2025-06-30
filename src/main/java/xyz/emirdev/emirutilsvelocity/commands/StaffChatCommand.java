@@ -3,6 +3,9 @@ package xyz.emirdev.emirutilsvelocity.commands;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
+
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.velocity.annotation.CommandPermission;
@@ -17,7 +20,7 @@ import java.util.UUID;
 public class StaffChatCommand {
     public static List<UUID> toggledPlayers = new ArrayList<>();
 
-    @Command({"staffchat", "sc"})
+    @Command({ "staffchat", "sc" })
     @CommandPermission("emirutilsvelocity.staffchat")
     public void staffchat(CommandSource sender, @Optional String message) {
         if (message != null) {
@@ -45,27 +48,29 @@ public class StaffChatCommand {
         LuckPermsUtils.getDisplayName(player).thenAcceptAsync(displayname -> {
             EmirUtilsVelocity.getProxyUtils().broadcastWithPermission(
                     "emirutilsvelocity.staffchat",
-                    EmirUtilsVelocity.hasRedisBungee() ?
-                            "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <dark_aqua>[<aqua>{1}<dark_aqua>] <aqua>{2}<aqua>: {3}" :
-                            "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{1}<dark_aqua>] <aqua>{2}<aqua>: {3}",
-                    EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : null,
-                    EmirUtilsVelocity.hasRedisBungee() ?
-                            RedisBungeeAPI.getRedisBungeeApi().getServerFor(player.getUniqueId()).getName() :
-                            player.getCurrentServer().get().getServerInfo().getName(),
-                    displayname,
-                    message
-            );
+                    EmirUtilsVelocity.hasRedisBungee()
+                            ? "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua><proxy><dark_aqua>] <dark_aqua>[<aqua><server><dark_aqua>] <aqua><displayname><aqua>: <message>"
+                            : "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua><server><dark_aqua>] <aqua><displayname><aqua>: <message>",
+                    Placeholder.unparsed("proxy",
+                            EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId()
+                                    : "null"),
+                    EmirUtilsVelocity.hasRedisBungee()
+                            ? Placeholder.unparsed("server",
+                                    RedisBungeeAPI.getRedisBungeeApi().getServerFor(player.getUniqueId()).getName())
+                            : Placeholder.unparsed("server", player.getCurrentServer().get().getServerInfo().getName()),
+                    Placeholder.component("displayname", displayname),
+                    Placeholder.component("message", MiniMessage.miniMessage().deserialize(message)));
         });
     }
 
     public static void sendStaffChatMessage(String message) {
         EmirUtilsVelocity.getProxyUtils().broadcastWithPermission(
                 "emirutilsvelocity.staffchat",
-                EmirUtilsVelocity.hasRedisBungee() ?
-                        "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua>{0}<dark_aqua>] <aqua>Console<aqua>: {1}" :
-                        "<dark_aqua>[<aqua>SC<dark_aqua>] <aqua>Console<aqua>: {1}",
-                EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : null,
-                message
-        );
+                EmirUtilsVelocity.hasRedisBungee()
+                        ? "<dark_aqua>[<aqua>SC<dark_aqua>] <dark_aqua>[<aqua><proxy><dark_aqua>] <aqua>Console<aqua>: <message>"
+                        : "<dark_aqua>[<aqua>SC<dark_aqua>] <aqua>Console<aqua>: <message>",
+                Placeholder.unparsed("proxy",
+                        EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : "null"),
+                Placeholder.component("message", MiniMessage.miniMessage().deserialize(message)));
     }
 }

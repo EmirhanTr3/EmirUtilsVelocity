@@ -3,6 +3,9 @@ package xyz.emirdev.emirutilsvelocity.commands;
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
+
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Optional;
 import revxrsal.commands.velocity.annotation.CommandPermission;
@@ -17,7 +20,7 @@ import java.util.UUID;
 public class OwnerChatCommand {
     public static List<UUID> toggledPlayers = new ArrayList<>();
 
-    @Command({"ownerchat", "oc"})
+    @Command({ "ownerchat", "oc" })
     @CommandPermission("emirutilsvelocity.ownerchat")
     public void staffchat(CommandSource sender, @Optional String message) {
         if (message != null) {
@@ -45,27 +48,29 @@ public class OwnerChatCommand {
         LuckPermsUtils.getDisplayName(player).thenAcceptAsync(displayname -> {
             EmirUtilsVelocity.getProxyUtils().broadcastWithPermission(
                     "emirutilsvelocity.ownerchat",
-                    EmirUtilsVelocity.hasRedisBungee() ?
-                            "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>{0}<dark_red>] <dark_red>[<red>{1}<dark_red>] <red>{2}<red>: {3}" :
-                            "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>{1}<dark_red>] <red>{2}<red>: {3}",
-                    EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : null,
-                    EmirUtilsVelocity.hasRedisBungee() ?
-                            RedisBungeeAPI.getRedisBungeeApi().getServerFor(player.getUniqueId()).getName() :
-                            player.getCurrentServer().get().getServerInfo().getName(),
-                    displayname,
-                    message
-            );
+                    EmirUtilsVelocity.hasRedisBungee()
+                            ? "<dark_red>[<red>OC<dark_red>] <dark_red>[<red><proxy><dark_red>] <dark_red>[<red><server><dark_red>] <red><displayname><red>: <message>"
+                            : "<dark_red>[<red>OC<dark_red>] <dark_red>[<red><server><dark_red>] <red><displayname><red>: <message>",
+                    Placeholder.unparsed("proxy",
+                            EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId()
+                                    : "null"),
+                    EmirUtilsVelocity.hasRedisBungee()
+                            ? Placeholder.unparsed("server",
+                                    RedisBungeeAPI.getRedisBungeeApi().getServerFor(player.getUniqueId()).getName())
+                            : Placeholder.unparsed("server", player.getCurrentServer().get().getServerInfo().getName()),
+                    Placeholder.component("displayname", displayname),
+                    Placeholder.component("message", MiniMessage.miniMessage().deserialize(message)));
         });
     }
 
     public static void sendOwnerChatMessage(String message) {
         EmirUtilsVelocity.getProxyUtils().broadcastWithPermission(
                 "emirutilsvelocity.ownerchat",
-                EmirUtilsVelocity.hasRedisBungee() ?
-                        "<dark_red>[<red>OC<dark_red>] <dark_red>[<red>{0}<dark_red>] <red>Console<red>: {1}" :
-                        "<dark_red>[<red>OC<dark_red>] <red>Console<red>: {1}",
-                EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : null,
-                message
-        );
+                EmirUtilsVelocity.hasRedisBungee()
+                        ? "<dark_red>[<red>OC<dark_red>] <dark_red>[<red><proxy><dark_red>] <red>Console<red>: <message>"
+                        : "<dark_red>[<red>OC<dark_red>] <red>Console<red>: <message>",
+                Placeholder.unparsed("proxy",
+                        EmirUtilsVelocity.hasRedisBungee() ? RedisBungeeAPI.getRedisBungeeApi().getProxyId() : "null"),
+                Placeholder.component("message", MiniMessage.miniMessage().deserialize(message)));
     }
 }

@@ -1,16 +1,15 @@
 package xyz.emirdev.emirutilsvelocity;
 
 import com.google.inject.Inject;
-import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import revxrsal.commands.Lamp;
 import revxrsal.commands.velocity.VelocityLamp;
@@ -33,25 +32,23 @@ import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyUtils;
 import xyz.emirdev.emirutilsvelocity.utils.proxy.VelocityUtils;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Path;
 import java.util.List;
 
 import static revxrsal.commands.velocity.VelocityVisitors.brigadier;
 
-@Plugin(
-        id = "emirutilsvelocity",
-        name = "EmirUtilsVelocity",
-        version = "2.0.0",
-        authors = {"EmirhanTr3"},
-        dependencies = {
+@Plugin(id = "emirutilsvelocity", name = "EmirUtilsVelocity", version = "2.1.0", authors = {
+        "EmirhanTr3" }, dependencies = {
                 @Dependency(id = "luckperms"),
                 @Dependency(id = "redisbungee", optional = true)
-        }
-)
+        })
 public class EmirUtilsVelocity {
     private static EmirUtilsVelocity instance;
     private static ProxyServer proxy;
+    private static Path dataDirectory;
     private static ConfigHandler config;
     private static Database database;
+    private static Lamp<VelocityCommandActor> lamp;
     private static LuckPerms luckPerms;
     private static BackendIntegrationManager backendIntegrationManager;
     private static ProxyUtils proxyUtils;
@@ -69,6 +66,10 @@ public class EmirUtilsVelocity {
 
     public static ProxyServer getProxy() {
         return proxy;
+    }
+
+    public static Path getDataDirectory() {
+        return dataDirectory;
     }
 
     public static boolean hasRedisBungee() {
@@ -92,9 +93,10 @@ public class EmirUtilsVelocity {
     }
 
     @Inject
-    public EmirUtilsVelocity(ProxyServer proxy) {
+    public EmirUtilsVelocity(ProxyServer proxy, @DataDirectory Path dataDirectory) {
         instance = this;
         EmirUtilsVelocity.proxy = proxy;
+        EmirUtilsVelocity.dataDirectory = dataDirectory;
     }
 
     @Subscribe
@@ -113,34 +115,15 @@ public class EmirUtilsVelocity {
             proxyUtils = new VelocityUtils();
         }
 
-        VelocityLampConfig<VelocityCommandActor> lampConfig = VelocityLampConfig
-                .createDefault(this, proxy);
-        Lamp<VelocityCommandActor> lamp = VelocityLamp.builder(lampConfig)
+        VelocityLampConfig<VelocityCommandActor> lampConfig = VelocityLampConfig.createDefault(this, proxy);
+        lamp = VelocityLamp.builder(lampConfig)
                 .parameterTypes(builder -> {
                     builder.addParameterType(ProxyPlayer.class, new ProxyPlayerParameterType());
                     builder.addParameterType(RegisteredServer.class, new RegisteredServerParameterType());
                     builder.addParameterType(InetSocketAddress.class, new InetSocketAddressParameterType());
-                })
-                .build();
+                }).build();
 
-        List.of(
-                new MainCommand(),
-                new StaffChatCommand(),
-                new OwnerChatCommand(),
-                new FindCommand(),
-                new ListCommand(),
-                new ServerCommand(),
-                new CheckIPCommand(),
-                new SendCommand(),
-                new MessageCommand(),
-                new ReplyCommand(),
-                new KickCommand(),
-                new SocialSpyCommand(),
-                new IgnoreCommand()
-        ).forEach(lamp::register);
-
-        if (config.getHubServer() != null) lamp.register(new HubCommand());
-        if (config.getDiscordInvite() != null) lamp.register(new DiscordCommand());
+        loadCommands();
 
         lamp.accept(brigadier(lampConfig));
 
@@ -149,7 +132,34 @@ public class EmirUtilsVelocity {
                 new ChatEvent(),
                 new NetworkJoinEvent(),
                 new NetworkLeaveEvent(),
-                new ChangeServerEvent()
-        ).forEach(e -> proxy.getEventManager().register(this, e));
+                new ChangeServerEvent()).forEach(e -> proxy.getEventManager().register(this, e));
+    }
+
+    public static void loadCommands() {
+        lamp.unregisterAllCommands();
+
+        List.of(
+                new MainCommand(),
+                new StaffChatCommand(),
+                new OwnerChatCommand(),
+                new FindCommand(),
+                new ListCommand(),
+                new ServerCommand(),
+                new SendCommand(),
+                new MessageCommand(),
+                new ReplyCommand(),
+                new KickCommand(),
+                new SocialSpyCommand(),
+                new IgnoreCommand()).forEach(c -> lamp.register(c));
+
+        if (config.getHubServer() != null) {
+            lamp.register(new HubCommand());
+        }
+        if (config.getDiscordInvite() != null) {
+            lamp.register(new DiscordCommand());
+        }
+        if (config.isIPCheckEnabled()) {
+            lamp.register(new CheckIPCommand());
+        }
     }
 }

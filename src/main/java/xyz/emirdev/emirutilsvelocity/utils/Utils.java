@@ -8,6 +8,8 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 
@@ -18,62 +20,40 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class Utils {
-    public static Component getPrefix() {
-        return format("<gradient:#00eeaa:#00aaaa><bold>EmirUtilsVelocity<reset> <dark_gray>» ");
+    public static Component formatMessage(String string, TagResolver... resolvers) {
+        return MiniMessage.miniMessage().deserialize(string, resolvers);
     }
 
-    /**
-     *
-     * @param string string to format
-     * @param args arguments that will be replaced in the string. argument format: {0}
-     * @return formatted string
-     */
-    public static String stringFormat(String string, Object... args) {
-        for (int i = 0; i < args.length; i++) {
-            string = string.replaceFirst(
-                    "\\{"+ i + "}",
-                    Objects.requireNonNullElse(
-                            args[i],
-                            "null"
-                    )
-                            .toString()
-                            .replaceAll("([$\\\\])", "\\$1")
-            );
-        }
-        return string;
+    public static String unformatMessage(Component component, TagResolver... resolvers) {
+        return MiniMessage.miniMessage().serialize(component);
     }
 
-    public static Component format(String string, Object... args) {
-        return MiniMessage.miniMessage().deserialize(stringFormat(string, args));
+    public static void sendMessage(CommandSource sender, String string, TagResolver... resolvers) {
+        sender.sendMessage(Utils.formatMessage(string, resolvers));
     }
 
-    public static void sendMessage(CommandSource sender, String string, Object... args) {
-        sender.sendMessage(format(string, args));
+    public static void sendError(CommandSource sender, String string, TagResolver... resolvers) {
+        sender.sendMessage(Utils.formatMessage("<#ee4444>" + string, resolvers));
     }
 
-    public static void sendError(CommandSource sender, String string, Object... args) {
-        sender.sendMessage(format("<#ee4444>" + string, args));
-    }
-
-    public static void broadcast(String string, Object... args) {
+    public static void broadcast(String string, TagResolver... resolvers) {
         for (Player player : EmirUtilsVelocity.getProxy().getAllPlayers()) {
-            sendMessage(player, string, args);
+            Utils.sendMessage(player, string, resolvers);
         }
-        sendMessage(EmirUtilsVelocity.getProxy().getConsoleCommandSource(), string, args);
+        Utils.sendMessage(EmirUtilsVelocity.getProxy().getConsoleCommandSource(), string, resolvers);
     }
 
-    public static void broadcastWithPermission(String perm, String string, Object... args) {
+    public static void broadcastWithPermission(String perm, String string, TagResolver... resolvers) {
         for (Player player : EmirUtilsVelocity.getProxy().getAllPlayers()) {
-            if (player.hasPermission(perm)) {
-                sendMessage(player, string, args);
-            }
+            if (!player.hasPermission(perm))
+                continue;
+            Utils.sendMessage(player, string, resolvers);
         }
-        sendMessage(EmirUtilsVelocity.getProxy().getConsoleCommandSource(), string, args);
+        Utils.sendMessage((CommandSource) EmirUtilsVelocity.getProxy().getConsoleCommandSource(), string, resolvers);
     }
 
     public static String convertComponentToLegacyString(Component component) {
@@ -81,36 +61,33 @@ public class Utils {
     }
 
     public static void connectPlayer(Player player, RegisteredServer server) {
-        connectPlayer(player, server, false);
+        Utils.connectPlayer(player, server, false);
     }
 
     public static void connectPlayer(Player player, RegisteredServer server, boolean silent) {
         if (!silent) {
             Utils.sendMessage(player,
-                    "<#00eeee>Connecting to server <#00ccff>{0}<#00eeee>...",
-                    server.getServerInfo().getName()
-            );
+                    "<#00eeee>Connecting to server <#00ccff><server><#00eeee>...",
+                    Placeholder.unparsed("server", server.getServerInfo().getName()));
         }
 
-        CompletableFuture<ConnectionRequestBuilder.Result> request = player.createConnectionRequest(server).connect();
-
-        request.thenAcceptAsync(action -> {
+        player.createConnectionRequest(server).connect().thenAcceptAsync(action -> {
             if (!action.isSuccessful()) {
                 if (action.getStatus() == ConnectionRequestBuilder.Status.ALREADY_CONNECTED) {
                     Utils.sendError(player, "You are already connected to this server.");
                     return;
+                }
 
-                } else if (action.getStatus() == ConnectionRequestBuilder.Status.CONNECTION_IN_PROGRESS) {
+                if (action.getStatus() == ConnectionRequestBuilder.Status.CONNECTION_IN_PROGRESS) {
                     Utils.sendError(player, "You are already connecting to this server.");
                     return;
                 }
 
-                Component message = Utils.format(
-                        "<#ee4444>Unable to connect to {0}. ",
-                        server.getServerInfo().getName()
-                );
-                Optional<Component> reason = action.getReasonComponent();
+                Component message = Utils.formatMessage(
+                        "<#ee4444>Unable to connect to <server>. ",
+                        Placeholder.unparsed("server", server.getServerInfo().getName()));
 
+                Optional<Component> reason = action.getReasonComponent();
                 if (reason.isPresent()) {
                     message = message.append(reason.get());
                 }
@@ -129,11 +106,12 @@ public class Utils {
                 String key = EmirUtilsVelocity.getConfig().getIPCheckKey();
                 if (key != null) {
                     isUsingKey = true;
-                    uri = new URI("https://proxycheck.io/v2/"+ip+"?vpn=3&asn=1&risk=1&short=1&key="+key);
+                    uri = new URI("https://proxycheck.io/v2/" + ip + "?vpn=3&asn=1&risk=1&short=1&key=" + key);
                 } else {
-                    uri = new URI("https://proxycheck.io/v2/"+ip+"?vpn=3&asn=1&risk=1&short=1");
+                    uri = new URI("https://proxycheck.io/v2/" + ip + "?vpn=3&asn=1&risk=1&short=1");
                 }
-            } catch (URISyntaxException ignored) {}
+            } catch (URISyntaxException ignored) {
+            }
 
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(uri)
@@ -146,7 +124,8 @@ public class Utils {
                         .send(req, HttpResponse.BodyHandlers.ofString());
 
                 Gson gson = new Gson();
-                Map<String, Object> map = gson.fromJson(cli.body(), new TypeToken<>(){});
+                Map<String, Object> map = gson.fromJson(cli.body(), new TypeToken<>() {
+                });
                 map.put("isUsingKey", isUsingKey);
 
                 return new IPData(map);
