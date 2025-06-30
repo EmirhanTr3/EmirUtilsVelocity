@@ -12,6 +12,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class VelocityUtils implements ProxyUtils {
+    public void broadcast(String message, TagResolver... resolvers) {
+        Utils.broadcast(message, resolvers);
+    }
+
     public void broadcastWithPermission(String perm, String message, TagResolver... resolvers) {
         Utils.broadcastWithPermission(perm, message, resolvers);
     }

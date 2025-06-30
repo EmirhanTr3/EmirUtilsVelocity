@@ -150,7 +150,8 @@ public class EmirUtilsVelocity {
                 new ReplyCommand(),
                 new KickCommand(),
                 new SocialSpyCommand(),
-                new IgnoreCommand()).forEach(c -> lamp.register(c));
+                new IgnoreCommand(),
+                new AnnouncementCommand()).forEach(c -> lamp.register(c));
 
         if (config.getHubServer() != null) {
             lamp.register(new HubCommand());

@@ -11,7 +11,7 @@ import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
 import java.io.IOException;
 
-@Command("emirutilsvelocity")
+@Command({ "emirutilsvelocity", "euv" })
 @CommandPermission("emirutilsvelocity.command")
 public class MainCommand {
 

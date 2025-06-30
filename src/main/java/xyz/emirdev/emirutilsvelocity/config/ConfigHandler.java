@@ -6,6 +6,7 @@ import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public class ConfigHandler {
@@ -41,6 +42,11 @@ public class ConfigHandler {
                 - By making a free account, you instead get 1000 free requests per day, and if you pay - even more!""");
         this.yamlFile.addDefault("ipcheck.enabled", true);
         this.yamlFile.addDefault("ipcheck.key", "none");
+
+        this.yamlFile.setComment("announcement.format", """
+                Format of the announcement command.
+                <message> will be replaced with the announcement message.""");
+        this.yamlFile.addDefault("announcement.format", List.of("", "<message>", ""));
 
         saveFile();
     }
@@ -104,5 +110,9 @@ public class ConfigHandler {
 
     public boolean isIPCheckEnabled() {
         return this.yamlFile.getBoolean("ipcheck.enabled");
+    }
+
+    public String getAnnouncementFormat() {
+        return String.join("\n", this.yamlFile.getStringList("announcement.format"));
     }
 }

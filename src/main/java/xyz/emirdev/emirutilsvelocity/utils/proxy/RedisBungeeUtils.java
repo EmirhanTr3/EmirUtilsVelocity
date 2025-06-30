@@ -21,6 +21,15 @@ import java.util.UUID;
 public class RedisBungeeUtils implements ProxyUtils {
     private final RedisBungeeAPI redisBungee = RedisBungeeAPI.getRedisBungeeApi();
 
+    public void broadcast(String message, TagResolver... resolvers) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("message", Utils.unformatMessage(Utils.formatMessage(message, resolvers)));
+
+        String json = gson.toJson(map);
+        redisBungee.sendChannelMessage("emirutilsvelocity:broadcast", json);
+    }
+
     public void broadcastWithPermission(String perm, String message, TagResolver... resolvers) {
         Gson gson = new Gson();
         Map<String, String> map = new LinkedHashMap<>();
@@ -89,7 +98,7 @@ public class RedisBungeeUtils implements ProxyUtils {
                 "<#41BBFF>[<#2595CC>SocialSpy<#41BBFF>] <#2595CC><player> <#41BBFF>→ <#2595CC><target><#41BBFF>: <#60CCFF><message>",
                 Placeholder.unparsed("player", player.getUsername()),
                 Placeholder.unparsed("target", target.getName()),
-                Placeholder.unparsed("message", MiniMessage.miniMessage().escapeTags(message)))));
+                Placeholder.unparsed("message", message))));
 
         String json = gson.toJson(map);
         redisBungee.sendChannelMessage("emirutilsvelocity:socialSpyMessage", json);
@@ -104,6 +113,8 @@ public class RedisBungeeUtils implements ProxyUtils {
             });
 
             switch (identifier) {
+                case "broadcast" -> Utils.broadcast(map.get("message"));
+
                 case "broadcastWithPermission" -> Utils.broadcastWithPermission(map.get("perm"), map.get("message"));
 
                 case "message" -> {

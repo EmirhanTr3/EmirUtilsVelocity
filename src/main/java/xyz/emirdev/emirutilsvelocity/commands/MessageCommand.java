@@ -3,7 +3,6 @@ package xyz.emirdev.emirutilsvelocity.commands;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.velocity.annotation.CommandPermission;
