@@ -7,6 +7,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,5 +74,10 @@ public class VelocityUtils implements ProxyUtils {
             EmirUtilsVelocity.getDatabase().updateSocialSpy(loopPlayer.getUniqueId(), false);
         }
         Utils.sendMessage(EmirUtilsVelocity.getProxy().getConsoleCommandSource(), msg, resolvers);
+    }
+
+    public void transferPlayer(UUID uuid, InetSocketAddress address) {
+        Optional<Player> optionalPlayer = EmirUtilsVelocity.getProxy().getPlayer(uuid);
+        optionalPlayer.ifPresent(player -> player.transferToHost(address));
     }
 }

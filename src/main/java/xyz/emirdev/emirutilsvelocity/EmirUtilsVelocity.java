@@ -24,6 +24,8 @@ import xyz.emirdev.emirutilsvelocity.events.NetworkLeaveEvent;
 import xyz.emirdev.emirutilsvelocity.events.ChangeServerEvent;
 import xyz.emirdev.emirutilsvelocity.managers.BackendIntegrationManager;
 import xyz.emirdev.emirutilsvelocity.parameters.InetSocketAddressParameterType;
+import xyz.emirdev.emirutilsvelocity.parameters.PlayerIPAddress;
+import xyz.emirdev.emirutilsvelocity.parameters.PlayerIPAddressParameterType;
 import xyz.emirdev.emirutilsvelocity.parameters.RegisteredServerParameterType;
 import xyz.emirdev.emirutilsvelocity.utils.proxy.RedisBungeeUtils;
 import xyz.emirdev.emirutilsvelocity.utils.proxy.ProxyPlayer;
@@ -121,6 +123,7 @@ public class EmirUtilsVelocity {
                     builder.addParameterType(ProxyPlayer.class, new ProxyPlayerParameterType());
                     builder.addParameterType(RegisteredServer.class, new RegisteredServerParameterType());
                     builder.addParameterType(InetSocketAddress.class, new InetSocketAddressParameterType());
+                    builder.addParameterType(PlayerIPAddress.class, new PlayerIPAddressParameterType());
                 }).build();
 
         loadCommands();
@@ -151,7 +154,8 @@ public class EmirUtilsVelocity {
                 new KickCommand(),
                 new SocialSpyCommand(),
                 new IgnoreCommand(),
-                new AnnouncementCommand()).forEach(c -> lamp.register(c));
+                new AnnouncementCommand(),
+                new TransferCommand()).forEach(c -> lamp.register(c));
 
         if (config.getHubServer() != null) {
             lamp.register(new HubCommand());

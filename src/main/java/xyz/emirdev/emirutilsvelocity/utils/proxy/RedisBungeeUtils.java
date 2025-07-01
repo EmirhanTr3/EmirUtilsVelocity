@@ -13,6 +13,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 import xyz.emirdev.emirutilsvelocity.utils.Utils;
 
+import java.net.InetSocketAddress;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -104,6 +105,16 @@ public class RedisBungeeUtils implements ProxyUtils {
         redisBungee.sendChannelMessage("emirutilsvelocity:socialSpyMessage", json);
     }
 
+    public void transferPlayer(UUID uuid, InetSocketAddress address) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("uuid", uuid.toString());
+        map.put("address", address.getHostName() + ":" + address.getPort());
+
+        String json = gson.toJson(map);
+        redisBungee.sendChannelMessage("emirutilsvelocity:transfer", json);
+    }
+
     @Subscribe
     public void onPubSubMessageEvent(PubSubMessageEvent event) {
         Gson gson = new Gson();
@@ -175,6 +186,17 @@ public class RedisBungeeUtils implements ProxyUtils {
                     }
 
                     Utils.sendMessage(EmirUtilsVelocity.getProxy().getConsoleCommandSource(), map.get("message"));
+                }
+
+                case "transfer" -> {
+                    String[] split = map.get("address").split(":");
+                    String hostname = split[0];
+                    int port = Integer.valueOf(split[1]);
+                    InetSocketAddress address = new InetSocketAddress(hostname, port);
+
+                    Optional<Player> optionalPlayer = EmirUtilsVelocity.getProxy()
+                            .getPlayer(UUID.fromString(map.get("uuid")));
+                    optionalPlayer.ifPresent(player -> player.transferToHost(address));
                 }
             }
         }

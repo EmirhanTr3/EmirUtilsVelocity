@@ -1,21 +1,18 @@
 package xyz.emirdev.emirutilsvelocity.parameters;
 
-import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
-
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 
 import org.jetbrains.annotations.NotNull;
-import revxrsal.commands.autocomplete.SuggestionProvider;
+
 import revxrsal.commands.node.ExecutionContext;
 import revxrsal.commands.parameter.ParameterType;
 import revxrsal.commands.stream.MutableStringStream;
 import revxrsal.commands.velocity.actor.VelocityCommandActor;
 import xyz.emirdev.emirutilsvelocity.EUVCommandException;
-import xyz.emirdev.emirutilsvelocity.EmirUtilsVelocity;
 
 import java.net.InetSocketAddress;
 
-public final class InetSocketAddressParameterType implements ParameterType<VelocityCommandActor, InetSocketAddress> {
+public class InetSocketAddressParameterType implements ParameterType<VelocityCommandActor, InetSocketAddress> {
 
     @Override
     public InetSocketAddress parse(@NotNull MutableStringStream input,
@@ -23,27 +20,24 @@ public final class InetSocketAddressParameterType implements ParameterType<Veloc
         String ip = input.readString();
 
         if (!ip.matches(
-                "(\\b25[0-5]|\\b2[0-4][0-9]|\\b[01]?[0-9][0-9]?)(.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}")) {
+                "(\\b25[0-5]|\\b2[0-4][0-9]|\\b[01]?[0-9][0-9]?)(.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}(:[0-9]{1,5})?")) {
             throw new EUVCommandException(
                     "<red>Invalid IP address:</red> <yellow><ip></yellow>",
                     Placeholder.unparsed("ip", ip));
         }
 
-        return new InetSocketAddress(ip, 0);
-    }
-
-    @Override
-    public @NotNull SuggestionProvider<@NotNull VelocityCommandActor> defaultSuggestions() {
-        return (context) -> {
-            if (EmirUtilsVelocity.hasRedisBungee()) {
-                RedisBungeeAPI redisBungee = RedisBungeeAPI.getRedisBungeeApi();
-                return redisBungee.getPlayersOnline().stream()
-                        .map(uuid -> redisBungee.getPlayerIp(uuid).getHostAddress()).toList();
-            } else {
-                return EmirUtilsVelocity.getProxy().getAllPlayers().stream()
-                        .map(player -> player.getRemoteAddress().getHostName()).toList();
+        int port = 25565;
+        if (ip.contains(":")) {
+            int sPort = Integer.valueOf(ip.split(":")[1]);
+            if (sPort < 0 || sPort > 0xFFFF) {
+                throw new EUVCommandException(
+                        "<red>Invalid port:</red> <yellow><port></yellow>",
+                        Placeholder.unparsed("port", String.valueOf(sPort)));
             }
-        };
+            port = sPort;
+        }
+
+        return new InetSocketAddress(ip, port);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package xyz.emirdev.emirutilsvelocity.commands;
 
 import com.velocitypowered.api.command.CommandSource;
+import com.velocitypowered.api.proxy.Player;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -18,7 +19,8 @@ public class KickCommand {
     @CommandPermission("emirutilsvelocity.kick")
     public void kick(CommandSource sender, ProxyPlayer player, @Default("You have been kicked!") String reason) {
         LuckPermsUtils.hasPermission(player.getUniqueId(), "emirutilsvelocity.kick").thenAcceptAsync(hasPerm -> {
-            if (hasPerm) {
+            if (hasPerm && !(sender instanceof Player senderPlayer
+                    && player.getUniqueId().equals(senderPlayer.getUniqueId()))) {
                 Utils.sendError(sender,
                         "You cannot kick <name>.",
                         Placeholder.unparsed("name", player.getName()));
