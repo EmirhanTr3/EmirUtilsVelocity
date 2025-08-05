@@ -39,7 +39,7 @@ import java.util.List;
 
 import static revxrsal.commands.velocity.VelocityVisitors.brigadier;
 
-@Plugin(id = "echologic", name = "EchoLogic", version = "2.1.0", authors = {
+@Plugin(id = "echologic", name = "EchoLogic", version = "2.1.1", authors = {
         "EmirhanTr3" }, dependencies = {
                 @Dependency(id = "luckperms"),
                 @Dependency(id = "redisbungee", optional = true)

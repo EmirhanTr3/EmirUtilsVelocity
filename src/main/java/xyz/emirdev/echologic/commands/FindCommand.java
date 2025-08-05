@@ -1,5 +1,7 @@
 package xyz.emirdev.echologic.commands;
 
+import java.util.Objects;
+
 import com.velocitypowered.api.command.CommandSource;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -11,15 +13,15 @@ import xyz.emirdev.echologic.utils.Utils;
 
 public class FindCommand {
 
-        @Command({ "find", "sfind" })
-        @CommandPermission("echologic.find")
-        public void find(CommandSource sender, ProxyPlayer player) {
-                Utils.sendMessage(sender,
-                                EchoLogic.hasRedisBungee()
-                                                ? "<#00ccff><player> <#00eeee>is found in <#00ccff><server> <#00eeee>from proxy <#00ccff><proxy>"
-                                                : "<#00ccff><player> <#00eeee>is found in <#00ccff><server>",
-                                Placeholder.unparsed("player", player.getName()),
-                                Placeholder.unparsed("server", player.getServer().getName()),
-                                Placeholder.unparsed("proxy", player.getProxy()));
-        }
+    @Command({ "find", "sfind" })
+    @CommandPermission("echologic.find")
+    public void find(CommandSource sender, ProxyPlayer player) {
+        Utils.sendMessage(sender,
+                EchoLogic.hasRedisBungee()
+                        ? "<#00ccff><player> <#00eeee>is found in <#00ccff><server> <#00eeee>from proxy <#00ccff><proxy>"
+                        : "<#00ccff><player> <#00eeee>is found in <#00ccff><server>",
+                Placeholder.unparsed("player", player.getName()),
+                Placeholder.unparsed("server", player.getServer().getName()),
+                Placeholder.unparsed("proxy", Objects.requireNonNullElse(player.getProxy(), "")));
+    }
 }
