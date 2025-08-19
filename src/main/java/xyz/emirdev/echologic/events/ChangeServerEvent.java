@@ -19,7 +19,7 @@ public class ChangeServerEvent {
                     "echologic.notifications.changeserver",
                     EchoLogic.hasRedisBungee()
                             ? "<#2070BB>\ud83d\udd01 <#3085DD>[<#2070BB>N<#3090DD>] [<#2070BB>\u2194<#3090DD>] <#1560AA><player> <#3090DD>(<#2070BB><prevserver> <#1560AA>\u2192 <#2070BB><newserver><#3090DD>) <#3090DD>[<#2070BB><proxy><#3090DD>]"
-                            : "<#2070BB>\ud83d\udd01 <#3085DD>[<#2070BB>N<#3090DD>] [<#2070BB>\u2194<#3090DD>] <#1560AA><player> <#3090DD>(<#2070BB><prevserer> <#1560AA>\u2192 <#2070BB><newserver><#3090DD>)",
+                            : "<#2070BB>\ud83d\udd01 <#3085DD>[<#2070BB>N<#3090DD>] [<#2070BB>\u2194<#3090DD>] <#1560AA><player> <#3090DD>(<#2070BB><prevserver> <#1560AA>\u2192 <#2070BB><newserver><#3090DD>)",
                     Placeholder.unparsed("player", player.getUsername()),
                     Placeholder.unparsed("prevserver", event.getPreviousServer().getServerInfo().getName()),
                     Placeholder.unparsed("newserver", event.getOriginalServer().getServerInfo().getName()),
