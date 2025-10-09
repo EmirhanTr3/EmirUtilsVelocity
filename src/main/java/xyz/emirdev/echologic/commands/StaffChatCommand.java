@@ -1,15 +1,17 @@
 package xyz.emirdev.echologic.commands;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import revxrsal.commands.annotation.Command;
-import revxrsal.commands.annotation.Optional;
-import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.echologic.EchoLogic;
+import xyz.emirdev.echologic.PluginCommand;
 import xyz.emirdev.echologic.utils.LuckPermsUtils;
 import xyz.emirdev.echologic.utils.Utils;
 
@@ -17,31 +19,49 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class StaffChatCommand {
+public class StaffChatCommand extends PluginCommand {
     public static List<UUID> toggledPlayers = new ArrayList<>();
 
-    @Command({ "staffchat", "sc" })
-    @CommandPermission("echologic.staffchat")
-    public void staffchat(CommandSource sender, @Optional String message) {
-        if (message != null) {
-            if (sender instanceof Player player) {
-                sendStaffChatMessage(player, message);
+    @Override
+    public LiteralCommandNode<CommandSource> getCommand() {
+        return BrigadierCommand.literalArgumentBuilder("staffchat")
+                .requires(hasPermission("echologic.staffchat"))
+                .executes(this::toggle)
+                .then(BrigadierCommand.requiredArgumentBuilder("message", StringArgumentType.greedyString())
+                        .executes(this::execute))
+                .build();
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("sc");
+    }
+
+    public int toggle(CommandContext<CommandSource> ctx) {
+        if (ctx.getSource() instanceof Player player) {
+            if (!toggledPlayers.contains(player.getUniqueId())) {
+                toggledPlayers.add(player.getUniqueId());
+                Utils.sendMessage(player, "<green>You are <bold>now</bold> chatting in staff chat.");
             } else {
-                sendStaffChatMessage(message);
+                toggledPlayers.remove(player.getUniqueId());
+                Utils.sendMessage(player, "<green>You are <bold>no longer</bold> chatting in staff chat.");
             }
         } else {
-            if (sender instanceof Player player) {
-                if (!toggledPlayers.contains(player.getUniqueId())) {
-                    toggledPlayers.add(player.getUniqueId());
-                    Utils.sendMessage(sender, "<green>You are <bold>now</bold> chatting in staff chat.");
-                } else {
-                    toggledPlayers.remove(player.getUniqueId());
-                    Utils.sendMessage(sender, "<green>You are <bold>no longer</bold> chatting in staff chat.");
-                }
-            } else {
-                Utils.sendError(sender, "You cannot toggle staff chat as console.");
-            }
+            Utils.sendError(ctx.getSource(), "You cannot toggle staff chat as console.");
         }
+
+        return 1;
+    }
+
+    public int execute(CommandContext<CommandSource> ctx) {
+        String message = StringArgumentType.getString(ctx, "message");
+        if (ctx.getSource() instanceof Player player) {
+            sendStaffChatMessage(player, message);
+        } else {
+            sendStaffChatMessage(message);
+        }
+
+        return 1;
     }
 
     public static void sendStaffChatMessage(Player player, String message) {

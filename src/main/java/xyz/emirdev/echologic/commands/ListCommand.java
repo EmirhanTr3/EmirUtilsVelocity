@@ -1,23 +1,36 @@
 package xyz.emirdev.echologic.commands;
 
 import com.imaginarycode.minecraft.redisbungee.RedisBungeeAPI;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import revxrsal.commands.annotation.Command;
-import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.echologic.EchoLogic;
+import xyz.emirdev.echologic.PluginCommand;
 import xyz.emirdev.echologic.utils.proxy.ProxyPlayer;
 import xyz.emirdev.echologic.utils.Utils;
 
 import java.util.*;
 
-public class ListCommand {
+public class ListCommand extends PluginCommand {
 
-    @Command({ "list", "slist" })
-    @CommandPermission("echologic.list")
-    public void list(CommandSource sender) {
+    @Override
+    public LiteralCommandNode<CommandSource> getCommand() {
+        return BrigadierCommand.literalArgumentBuilder("list")
+                .requires(hasPermission("echologic.list"))
+                .executes(this::execute)
+                .build();
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("slist");
+    }
+
+    public int execute(CommandContext<CommandSource> ctx) {
         Map<String, List<String>> servers = new HashMap<>();
 
         if (EchoLogic.hasRedisBungee()) {
@@ -44,7 +57,7 @@ public class ListCommand {
             }
         }
 
-        Utils.sendMessage(sender,
+        Utils.sendMessage(ctx.getSource(),
                 "<yellow>There are currently <count> players connected to the network.",
                 EchoLogic.hasRedisBungee()
                         ? Placeholder.unparsed("count",
@@ -55,11 +68,13 @@ public class ListCommand {
             String server = entry.getKey();
             List<String> players = entry.getValue();
 
-            Utils.sendMessage(sender,
+            Utils.sendMessage(ctx.getSource(),
                     "<dark_aqua>[<server>] <gray>(<size>)<white>: <players>",
                     Placeholder.unparsed("server", server),
                     Placeholder.unparsed("size", String.valueOf(players.size())),
                     Placeholder.unparsed("players", String.join(", ", players)));
         }
+
+        return 1;
     }
 }

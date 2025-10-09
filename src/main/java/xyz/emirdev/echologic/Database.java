@@ -1,9 +1,8 @@
-package xyz.emirdev.echologic.database;
+package xyz.emirdev.echologic;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import xyz.emirdev.echologic.EchoLogic;
-import xyz.emirdev.echologic.config.DatabaseConfig;
+import org.spongepowered.configurate.CommentedConfigurationNode;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -23,17 +22,23 @@ public class Database {
     private static final String IGNOREDPLAYERS_CHECK = "SELECT EXISTS(SELECT 1 FROM ignoredplayers WHERE playeruuid=? AND targetuuid=?)";
     private static final String IGNOREDPLAYERS_DELETE = "DELETE FROM ignoredplayers WHERE playeruuid=? AND targetuuid=?";
 
-    private HikariConfig config;
-    private HikariDataSource hikari;
+    private final HikariConfig config;
+    private final HikariDataSource hikari;
 
     public Database() {
-        DatabaseConfig databaseConfig = EchoLogic.getConfig().getDatabase();
+        CommentedConfigurationNode database = EchoLogic.getConfig().getRoot().node("database");
         config = new HikariConfig();
 
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        config.setJdbcUrl(String.format("jdbc:%s://%s:%s/%s", "mysql", databaseConfig.getAddress(), databaseConfig.getPort(), databaseConfig.getName()));
-        config.setUsername(databaseConfig.getUsername());
-        config.setPassword(databaseConfig.getPassword());
+        config.setJdbcUrl(String.format(
+                "jdbc:%s://%s:%s/%s",
+                "mysql",
+                database.node("address").getString(),
+                database.node("port").getInt(),
+                database.node("name").getString()
+        ));
+        config.setUsername(database.node("username").getString());
+        config.setPassword(database.node("password").getString());
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
@@ -74,29 +79,6 @@ public class Database {
         }
 
         return connection;
-    }
-
-    public DatabaseMetadata getMeta() {
-        DatabaseMetadata metadata = new DatabaseMetadata();
-
-        boolean success = true;
-        long start = System.currentTimeMillis();
-
-        try (Connection c = getConnection()) {
-            try (Statement s = c.createStatement()) {
-                s.execute("/* ping */ SELECT 1");
-            }
-        } catch (SQLException e) {
-            success = false;
-        }
-
-        if (success) {
-            int duration = (int) (System.currentTimeMillis() - start);
-            metadata.ping(duration);
-        }
-
-        metadata.connected(success);
-        return metadata;
     }
 
     private void insertPlayerData(UUID uuid) {

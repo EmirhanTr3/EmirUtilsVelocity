@@ -1,36 +1,38 @@
 package xyz.emirdev.echologic.commands;
 
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import com.velocitypowered.api.command.BrigadierCommand;
 import com.velocitypowered.api.command.CommandSource;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import revxrsal.commands.annotation.Command;
-import revxrsal.commands.annotation.Subcommand;
-import revxrsal.commands.velocity.annotation.CommandPermission;
 import xyz.emirdev.echologic.EchoLogic;
+import xyz.emirdev.echologic.PluginCommand;
 import xyz.emirdev.echologic.utils.Utils;
 
 import java.io.IOException;
 
-@Command("echologic")
-@CommandPermission("echologic.command")
-public class MainCommand {
+public class MainCommand extends PluginCommand {
 
-    @Subcommand("reload")
-    @CommandPermission("echologic.command.reload")
-    public void reload(CommandSource sender) {
+    @Override
+    public LiteralCommandNode<CommandSource> getCommand() {
+        return BrigadierCommand.literalArgumentBuilder("echologic")
+                .requires(hasPermission("echologic.command"))
+                .then(BrigadierCommand.literalArgumentBuilder("reload")
+                        .requires(hasPermission("echologic.command.reload"))
+                        .executes(this::reload))
+                .build();
+    }
+
+    public int reload(CommandContext<CommandSource> ctx) {
         long time = System.currentTimeMillis();
 
-        try {
-            EchoLogic.getConfig().reload();
-            EchoLogic.loadCommands();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Utils.sendError(sender, "There was an error reloading configuration. Check console for more information.");
-            return;
-        }
+        EchoLogic.getConfig().load();
 
-        Utils.sendMessage(sender,
+        Utils.sendMessage(ctx.getSource(),
                 "<#00eeee>Reloaded configuration in <#00ccff><time><#00eeee>ms.",
                 Placeholder.unparsed("time", String.valueOf(System.currentTimeMillis() - time)));
+
+        return 1;
     }
 }

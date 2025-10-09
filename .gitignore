@@ -2,6 +2,9 @@
 /target/
 /dependency-reduced-pom.xml
 /.settings/
+/run/
+/.gradle/
+/build/
 .classpath
 .factorypath
 .project

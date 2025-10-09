@@ -6,6 +6,7 @@ import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.ConnectionRequestBuilder;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
+import lombok.Getter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -53,7 +54,7 @@ public class Utils {
                 continue;
             Utils.sendMessage(player, string, resolvers);
         }
-        Utils.sendMessage((CommandSource) EchoLogic.getProxy().getConsoleCommandSource(), string, resolvers);
+        Utils.sendMessage(EchoLogic.getProxy().getConsoleCommandSource(), string, resolvers);
     }
 
     public static String convertComponentToLegacyString(Component component) {
@@ -103,8 +104,8 @@ public class Utils {
             boolean isUsingKey = false;
 
             try {
-                String key = EchoLogic.getConfig().getIPCheckKey();
-                if (key != null) {
+                String key = EchoLogic.getConfig().getRoot().node("ipcheck", "key").getString();
+                if (key != null && !key.equals("none")) {
                     isUsingKey = true;
                     uri = new URI("https://proxycheck.io/v2/" + ip + "?vpn=3&asn=1&risk=1&short=1&key=" + key);
                 } else {
@@ -137,21 +138,32 @@ public class Utils {
     }
 
     public static class IPData {
+        @Getter
         private final boolean isUsingKey;
+        @Getter
         private final String status;
+        @Getter
         private final String message;
+        @Getter
         private final String ip;
+        @Getter
         private final String provider;
+        @Getter
         private final String organisation;
         private final String city;
         private final String region;
         private final String country;
         private final double latitude;
         private final double longitude;
+        @Getter
         private final String type;
+        @Getter
         private final boolean isVPN;
+        @Getter
         private final boolean isProxy;
+        @Getter
         private final double risk;
+        @Getter
         private final String riskName;
 
         public IPData(Map<String, Object> map) {
@@ -173,52 +185,8 @@ public class Utils {
             this.riskName = this.risk >= 66 ? "Very Risky" : this.risk >= 33 ? "Risky" : "Safe";
         }
 
-        public boolean isUsingKey() {
-            return this.isUsingKey;
-        }
-
-        public String getStatus() {
-            return this.status;
-        }
-
-        public String getMessage() {
-            return this.message;
-        }
-
-        public String getIp() {
-            return this.ip;
-        }
-
-        public String getProvider() {
-            return this.provider;
-        }
-
-        public String getOrganisation() {
-            return this.organisation;
-        }
-
         public String getLocation() {
             return String.format("%s, %s, %s (%s, %s)", this.city, this.region, this.country, latitude, longitude);
-        }
-
-        public String getType() {
-            return this.type;
-        }
-
-        public boolean isVPN() {
-            return this.isVPN;
-        }
-
-        public boolean isProxy() {
-            return this.isProxy;
-        }
-
-        public double getRisk() {
-            return this.risk;
-        }
-
-        public String getRiskName() {
-            return this.riskName;
         }
     }
 }

@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 
+import lombok.Getter;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import xyz.emirdev.echologic.EchoLogic;
 
@@ -16,6 +17,7 @@ public class ProxyPlayer {
 
     private final Player player;
     private final UUID uuid;
+    @Getter
     private final String name;
 
     public ProxyPlayer(String name) {
@@ -76,10 +78,6 @@ public class ProxyPlayer {
 
     public UUID getUniqueId() {
         return uuid;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public boolean isOnline() {

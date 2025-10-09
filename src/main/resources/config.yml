@@ -1,0 +1,33 @@
+# The configuration for the MySQL database.
+database:
+  address: 0.0.0.0
+  port: 3306
+  username: username
+  password: password
+  name: echologic
+
+# The hub server's name for /hub. Set to "none" to disable.
+hub: none
+
+# The configuration of /discord command.
+discord:
+  # The discord server invite. Set to "none" to disable.
+  invite: none
+  # The message to send when /discord is executed. <invite> will be replaced with the invite url.
+  message: <click:open_url:'<invite>'><aqua>Join our discord server by clicking</aqua> <dark_aqua><u>here</u></dark_aqua><aqua>.</aqua></click>
+
+# IP Check Configuration
+# - We are using the proxycheck.io API for checking IP data.
+# - The API is usable with its guest mode, but it's only limited to 100 requests per day.
+# - By making a free account, you instead get 1000 free requests per day, and if you pay - even more!
+ipcheck:
+  enabled: true
+  key: none
+
+announcement:
+  # Format of the announcement command.
+  # <message> will be replaced with the announcement message.
+  format:
+    - ''
+    - <message>
+    - ''
