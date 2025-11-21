@@ -11,6 +11,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import xyz.emirdev.echologic.EchoLogic;
+import xyz.emirdev.echologic.commands.SudoCommand;
 import xyz.emirdev.echologic.utils.Utils;
 
 import java.net.InetSocketAddress;
@@ -115,6 +116,18 @@ public class RedisBungeeUtils implements ProxyUtils {
         redisBungee.sendChannelMessage("echologic:transfer", json);
     }
 
+    @Override
+    public void sudoPlayer(SudoCommand.SudoMode mode, ProxyPlayer proxyPlayer, String message) {
+        Gson gson = new Gson();
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("mode", mode.toString());
+        map.put("uuid", proxyPlayer.getUniqueId().toString());
+        map.put("message", message);
+
+        String json = gson.toJson(map);
+        redisBungee.sendChannelMessage("echologic:sudo", json);
+    }
+
     @Subscribe
     public void onPubSubMessageEvent(PubSubMessageEvent event) {
         Gson gson = new Gson();
@@ -197,6 +210,21 @@ public class RedisBungeeUtils implements ProxyUtils {
                     Optional<Player> optionalPlayer = EchoLogic.getProxy()
                             .getPlayer(UUID.fromString(map.get("uuid")));
                     optionalPlayer.ifPresent(player -> player.transferToHost(address));
+                }
+
+                case "sudo" -> {
+                    Optional<Player> optionalPlayer = EchoLogic.getProxy().getPlayer(UUID.fromString(map.get("uuid")));
+                    if (optionalPlayer.isEmpty()) return;
+                    Player player = optionalPlayer.get();
+                    String message = map.get("message");
+
+                    if (SudoCommand.SudoMode.valueOf(map.get("mode")) == SudoCommand.SudoMode.PROXY
+                            && message.startsWith("/")) {
+                        EchoLogic.getProxy().getCommandManager().executeAsync(player, message);
+                        return;
+                    }
+
+                    player.spoofChatInput(message);
                 }
             }
         }

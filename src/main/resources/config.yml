@@ -31,3 +31,11 @@ announcement:
     - ''
     - <message>
     - ''
+
+# Hides the commands in list from player.
+# Accepts regex.
+# DOES NOT STOP THE COMMAND EXECUTION
+hidecommands:
+  enabled: false
+  commands:
+    - example

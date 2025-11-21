@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import xyz.emirdev.echologic.EchoLogic;
+import xyz.emirdev.echologic.commands.SudoCommand;
 import xyz.emirdev.echologic.utils.Utils;
 
 import java.net.InetSocketAddress;
@@ -79,5 +80,19 @@ public class VelocityUtils implements ProxyUtils {
     public void transferPlayer(UUID uuid, InetSocketAddress address) {
         Optional<Player> optionalPlayer = EchoLogic.getProxy().getPlayer(uuid);
         optionalPlayer.ifPresent(player -> player.transferToHost(address));
+    }
+
+    @Override
+    public void sudoPlayer(SudoCommand.SudoMode mode, ProxyPlayer proxyPlayer, String message) {
+        Optional<Player> optionalPlayer = EchoLogic.getProxy().getPlayer(proxyPlayer.getUniqueId());
+        if (optionalPlayer.isEmpty()) return;
+        Player player = optionalPlayer.get();
+
+        if (mode == SudoCommand.SudoMode.PROXY && message.startsWith("/")) {
+            EchoLogic.getProxy().getCommandManager().executeAsync(player, message.replaceFirst("/", ""));
+            return;
+        }
+
+        player.spoofChatInput(message);
     }
 }

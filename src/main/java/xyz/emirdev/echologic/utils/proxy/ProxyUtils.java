@@ -3,6 +3,7 @@ package xyz.emirdev.echologic.utils.proxy;
 import com.velocitypowered.api.proxy.Player;
 
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import xyz.emirdev.echologic.commands.SudoCommand;
 
 import java.net.InetSocketAddress;
 import java.util.UUID;
@@ -25,4 +26,6 @@ public interface ProxyUtils {
     void sendSocialSpyMessage(Player player, ProxyPlayer target, String message);
 
     void transferPlayer(UUID uuid, InetSocketAddress address);
+
+    void sudoPlayer(SudoCommand.SudoMode mode, ProxyPlayer proxyPlayer, String message);
 }

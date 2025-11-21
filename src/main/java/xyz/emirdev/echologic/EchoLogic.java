@@ -32,7 +32,7 @@ import java.nio.file.Path;
         },
         dependencies = {
                 @Dependency(id = "luckperms"),
-                @Dependency(id = "redisbungee", optional = true),
+                @Dependency(id = "redisbungee", optional = true)
         })
 public class EchoLogic {
     @Getter
